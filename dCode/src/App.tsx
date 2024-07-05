@@ -1,13 +1,13 @@
-import './App.css'
-
-import './App.css'
+// app.tsx
+import './App.css';
+import Landing from './landing';
 
 function App() {
   return (
     <div className="App">
-      <h1>Welcome to dCode</h1>
+      <Landing />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
