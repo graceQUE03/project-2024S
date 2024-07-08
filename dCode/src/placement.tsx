@@ -1,10 +1,66 @@
 // placement.tsx
-import {Box, Button, TextField, Typography } from '@mui/material';
-import './App.css';
+import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+import "./App.css";
+
+// display problem number, problem statement and type box for description
+function displayProblemBox(number: number, problem: string) {
+  return (
+    <>
+    <Box
+        sx={{
+          gap: 2,
+          display: "flex",
+          alignItems: "center",
+          height: "35vh",
+          flexDirection: "row",
+        }}
+      >
+        <Box
+          sx={{
+            width: 25,
+            height: 25,
+            bgcolor: "primary.main",
+            color: "white",
+            borderRadius: "4px",
+          }}
+        >
+          <Typography variant="body1">{number}</Typography>
+        </Box>
+
+        <Box
+          height={200}
+          width={500}
+          my={4}
+          display="flex"
+          flexDirection="row"
+          justifyContent="center"
+          p={2}
+          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
+        >
+          <pre>{problem}</pre>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          width : 600,
+          mt: 15,
+        }}
+      >
+        <TextField
+          fullWidth
+          id="description"
+          label="Type your function description in plain English below"
+          multiline
+          minRows={4}
+          maxRows={10}
+        />
+      </Box>
+    </>
+  );
+};
 
 function Placement() {
-  const firstProblem = 
-  ` # Program to display the Fibonacci sequence
+  const firstProblem = ` # Program to display the Fibonacci sequence
   recurse_fibonacci <- function(n) {
     if (n <= 1) {
       return(n);
@@ -15,80 +71,31 @@ function Placement() {
 
   return (
     <div className="App">
-      <Typography variant="h4" gutterBottom style={{ position: 'absolute', top: '12%', left: '50%', transform: 'translateX(-50%)' }}>
+      {/* Header */}
+      <Typography
+        variant="h4"
+        gutterBottom
+        style={{
+          position: "absolute",
+          top: "12%",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}
+      >
         Placement Test
       </Typography>
-      <Box
-      height={170}
-      width={450}
-      my={4}
-      display="flex"
-      flexDirection = "column"
-      justifyContent="center"
-      p={2}
-      sx={{mt: 20, textAlign: 'left', border: '4px solid #646cffaa' }}
-    >
-      <pre>{firstProblem}</pre>
-    </Box>
-    <TextField
-        fullWidth
-        id="description"
-        label="Type your function description in plain English below"
-        multiline
-        minRows={4}
-        maxRows={10}
-    />
 
-    <Box
-      height={170}
-      width={450}
-      my={4}
-      display="flex"
-      flexDirection = "column"
-      justifyContent="center"
-      p={2}
-      sx={{mt: 10, textAlign: 'left', border: '4px solid #646cffaa' }}
-    >
-      <pre>{firstProblem}</pre>
-    </Box>
-    <TextField
-        fullWidth
-        id="description"
-        label="Type your function description in plain English below"
-        multiline
-        minRows={4}
-        maxRows={10}
-    />
+      {/* Problems */}
+      {displayProblemBox(1, firstProblem)}
+      {displayProblemBox(2, firstProblem)}
+      {displayProblemBox(3, firstProblem)}
 
-    <Box
-      height={170}
-      width={450}
-      my={4}
-      display="flex"
-      flexDirection = "column"
-      justifyContent="center"
-      p={2}
-      sx={{mt: 10, textAlign: 'left', border: '4px solid #646cffaa' }}
-    >
-      <pre>{firstProblem}</pre>
-    </Box>
-    <TextField
-        fullWidth
-        id="description"
-        label="Type your function description in plain English below"
-        multiline
-        minRows={4}
-        maxRows={10}
-    />
-    <Button
-    type="button"
-    variant="contained"
-    sx={{ mt: 7, mb: 2 }}>
-      End Test and Submit
-    </Button>
+      {/* Submit Button */}
+      <Button type="button" variant="contained" sx={{ mt: 7, mb: 2 }}>
+        End Test and Submit
+      </Button>
     </div>
-
   );
 }
 
-export default Placement;                  
+export default Placement;
