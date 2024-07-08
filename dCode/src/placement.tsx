@@ -1,5 +1,5 @@
 // placement.tsx
-import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import "./App.css";
 
 // display problem number, problem statement and type box for description
