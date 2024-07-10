@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Landing from './landing';
 import Problems from './problems';
 import Placement from './placement';
+import Result from './result';
 import About from './about';
 import Home from './home';
 
@@ -16,6 +17,7 @@ function App() {
           <Route path="problems" element={<Problems />} />
           <Route path="placement" element={<Placement />} />
           <Route path="about" element={<About />} />
+          <Route path="result" element={<Result />} />
           <Route index element={<Problems />} /> {/* Default to Problems */}
         </Route>
       </Routes>

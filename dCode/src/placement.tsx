@@ -1,5 +1,6 @@
 // placement.tsx
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { useNavigate } from 'react-router-dom'; 
 import "./App.css";
 
 // display problem number, problem statement and type box for description
@@ -69,6 +70,12 @@ function Placement() {
     }
   }`;
 
+  const navigate = useNavigate();  
+
+  const handleResult = () => {
+    navigate('/dcode/result');  
+  };
+
   return (
     <div className="App">
       {/* Header */}
@@ -91,7 +98,11 @@ function Placement() {
       {displayProblemBox(3, firstProblem)}
 
       {/* Submit Button */}
-      <Button type="button" variant="contained" sx={{ mt: 7, mb: 2 }}>
+      <Button 
+      type="button" 
+      variant="contained" 
+      sx={{ mt: 7, mb: 2}} 
+      onClick={handleResult}>
         End Test and Submit
       </Button>
     </div>
