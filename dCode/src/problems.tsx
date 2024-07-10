@@ -22,25 +22,33 @@ const MenuProps = {
   },
 };
 
+// constant data for table
 const difficulty = [
   'Easy',
   'Medium',
   'Hard',
 ];
 
+// constant data for table
 const status = [
-  'Solved',
-  'Unsolved',
+  'Unstarted',
+  'Attempted',
+  'Completed',
 ];
 
-
+// fetch data from database in the future
 const rows = [
-  createData('Solved', 'Easy', 'Two Sum'),
-  createData('Unsolved', 'Easy', 'Reverse Integer'),
-  createData('Solved', 'Hard', 'Median of Two Sorted Arrays'),
-  createData('Unsolved', 'Medium', 'Longest Palindromic Substring'),
-  createData('Unsolved', 'Medium', 'ZigZag Conversion'),
+  createData('Attempted', 'Hard', 'Median of Two Sorted Arrays'),
+  createData('Completed', 'Medium', 'Longest Palindromic Substring'),
+  createData('Unstarted', 'Medium', 'ZigZag Conversion'),
+  // createData('Completed', 'Easy', 'Two Sum'),
+  // createData('Attempted', 'Easy', 'Reverse Integer'),
 ];
+
+function calcCompleted(rowsArray: any[]) {
+  return rowsArray.filter((row: any) => row.status === 'Completed').length;
+}
+
 
 function createData(
   status: string,
@@ -51,28 +59,16 @@ function createData(
 }
 
 // template code from https://mui.com/material-ui/react-select/#system-MultipleSelectCheckmarks.tsx
-function MultipleSelectCheckmarks(category: string) {
-  const [personName, setPersonName] = React.useState<string[]>([]);
-
-  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
-    const {
-      target: { value },
-    } = event;
-    setPersonName(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
-  };
-
+function MultipleSelectCheckmarks(category: string, selected: string[], handleChange: any) {
   return (
     <div>
       <FormControl sx={{m:1, width: 200 }}>
         <InputLabel id="demo-multiple-checkbox-label">{category}</InputLabel>
         <Select
-          labelId="demo-multiple-checkbox-label"
-          id="demo-multiple-checkbox"
+          labelId="${category}-select-label"
+          id="${category}-select"
           multiple
-          value={personName}
+          value={selected}
           onChange={handleChange}
           input={<OutlinedInput label= {category}/>}
           renderValue={(selected) => selected.join(', ')}
@@ -80,7 +76,7 @@ function MultipleSelectCheckmarks(category: string) {
         >
           {(category === "Difficulty" ? difficulty : status).map((name) => (
             <MenuItem key={name} value={name}>
-              <Checkbox checked={personName.indexOf(name) > -1} />
+              <Checkbox checked={selected.indexOf(name) > -1} />
               <ListItemText primary={name} />
             </MenuItem>
           ))}
@@ -92,16 +88,42 @@ function MultipleSelectCheckmarks(category: string) {
 
 function Problems() {
   const theme = useTheme();
-  
   const navigate = useNavigate();
 
   // handle table cell button click
   const handleProblem = () => {
-    navigate("/dcode/about");
+    navigate("/dcode/problem");
   };
 
+  // states for drop down menu
+  const [selectedStatus, setSelectedStatus] = React.useState<string[]>([]);
+  const [selectedDifficulty, setSelectedDifficulty] = React.useState<string[]>([]);
+
+  const handleStatusChange = (event: SelectChangeEvent<string[]>) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedStatus(typeof value === 'string' ? value.split(',') : value);
+  };
+  
+  const handleDifficultyChange = (event: SelectChangeEvent<string[]>) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedDifficulty(typeof value === 'string' ? value.split(',') : value);
+  };
+
+  const filteredRows = rows.filter(row =>
+    (selectedStatus.length === 0 || selectedStatus.includes(row.status)) &&
+    (selectedDifficulty.length === 0 || selectedDifficulty.includes(row.difficulty))
+  );
+
+  var completed = calcCompleted(filteredRows);
+
+
+
   return (
-    <div className="App" style={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="App" style={{ width: '130vh', height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{
           display: "flex",
           justfifyContent: "flex-start",
@@ -111,30 +133,31 @@ function Problems() {
           paddingTop: 10,
           paddingBottom: 4,
         }}>
-        <Grid container alignItems = "center" spacing = {1}>
-          <Grid item><Typography variant="h6"> 3/7 Problems Done (42%) </Typography></Grid>
-          <Grid item>{MultipleSelectCheckmarks("Status")}</Grid>
-          <Grid item>{MultipleSelectCheckmarks("Difficulty")}</Grid>
+        <Grid container alignItems = "center" spacing = {2}>
+          <Grid item><Typography variant="h6"> {completed}/{filteredRows.length} Problems Done ({filteredRows.length === 0 ? (0).toFixed(2) : (completed / filteredRows.length * 100).toFixed(2)}%) </Typography></Grid>
+          <Grid item>{MultipleSelectCheckmarks("Status", selectedStatus, handleStatusChange)}</Grid>
+          <Grid item>{MultipleSelectCheckmarks("Difficulty", selectedDifficulty, handleDifficultyChange)}</Grid>
         </Grid>
       </Box>
 
       <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650}} aria-label="simple table">
-        <TableHead>
-          <TableRow sx={{bgcolor: theme.palette.primary.main}}>
+      <Table sx={{ minWidth: 700, width: '100%',}} aria-label="simple table">
+        <TableHead sx={{bgcolor: theme.palette.primary.main}}>
+          <TableRow>
             <TableCell>Status</TableCell>
             <TableCell align="left">Difficulty</TableCell>
             <TableCell>Title</TableCell>
           </TableRow>
         </TableHead>
-        <TableBody sx={{bgcolor: lighten(theme.palette.primary.main, 0.5)}}>
-          {rows.map((row) => (
+        <TableBody>
+          {filteredRows.map((row, index) => (
             <TableRow
               hover
               key={row.status}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 },　bgcolor: index % 2 === 0 ? lighten(theme.palette.primary.main, 0.5) : "#e0e0e0"}}
+              onClick={() => handleProblem()}
             >
-              <TableCell onClick={() => handleProblem()}>
+              <TableCell>
                 {row.status}
               </TableCell>
               <TableCell align="left">{row.difficulty}</TableCell>

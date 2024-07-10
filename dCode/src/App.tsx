@@ -3,6 +3,7 @@ import './App.css';
 import { Routes, Route } from 'react-router-dom';
 import Landing from './landing';
 import Problems from './problems';
+import Problem from './problem';
 import Placement from './placement';
 import Result from './result';
 import About from './about';
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/dcode/*" element={<Home />}>
           <Route path="problems" element={<Problems />} />
+          <Route path="problem" element={<Problem />} />
           <Route path="placement" element={<Placement />} />
           <Route path="about" element={<About />} />
           <Route path="result" element={<Result />} />
