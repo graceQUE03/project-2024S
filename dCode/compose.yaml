@@ -26,6 +26,7 @@ services:
       - db-password
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - POSTGRES_DB=example
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password

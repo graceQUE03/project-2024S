@@ -27,11 +27,46 @@ const config = {
 	issuerBaseURL: 'https://dev-6omitcvbhwq5hvfk.us.auth0.com'
 };
 
-app.get('/api/problems', (req, res) => {
-	pg('problems').select().then((problems) => {
-		res.json(problems);
-	});
-});
+
+// FIGURING OUT AUTH0 USER STORAGE 
+
+// app.use(auth(config));
+
+// app.post('/api/user', (req, res) => {
+//     const { sub } = req.oidc.user;  
+
+//     pg('users')
+//         .insert({ auth0_user_id: sub })
+//         .returning('*')
+//         .then((user) => {
+//             res.json(user);
+//         })
+//         .catch((err) => {
+//             console.error('Error inserting user:', err);
+//             res.status(500).json({ error: 'Failed to insert user' });
+//         });
+// });
+
+// // Endpoint to fetch all users
+// app.get('/api/users', (req, res) => {
+//     // Query the database for all users
+//     pg('users')
+//         .select()
+//         .then(users => {
+//             res.json(users);
+//         })
+//         .catch((err) => {
+//             console.error('Error fetching users:', err);
+//             res.status(500).json({ error: 'Failed to fetch users' });
+//         });
+// });
+
+// app.get('/api/problems', (req, res) => {
+// 	pg('problems').select().then((problems) => {
+// 		res.json(problems);
+// 	});
+// });
+
 
 app.get('/api/problems/:id', (req, res) => {
 	pg('problems').select().where('problem_id', req.params.id).then((problems) => {
