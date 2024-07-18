@@ -1,30 +1,18 @@
 import { Avatar, Box, Button, Card, CardContent, CardHeader, Container, Grid, Link, Stack, Typography, AppBar, Toolbar, CssBaseline, Dialog, DialogContent, DialogContentText, DialogTitle, IconButton } from '@mui/material';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import './App.css';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function Landing() {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { loginWithRedirect, isAuthenticated } = useAuth0();
 
   const handleSignIn = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/a');  
-      const data = await response.text();
-  
-      if (data.trim() === 'Logged in') {
-        navigate('/dcode');  
-      } else {
-        navigate('/login');  
-        window.location.reload();
-        navigate('/dcode');
-      }
-    } catch (error) {
-      console.error('Error checking login status:', error);
-      navigate('/login');  
-      window.location.reload(); 
-      navigate('/dcode')
+    if (isAuthenticated) {
+      window.location.href = '/dcode';
+    } else {
+      await loginWithRedirect();
     }
   };
 

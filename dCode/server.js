@@ -1,6 +1,11 @@
 import express from 'express';
 import { auth } from 'express-openid-connect';
 import knex from 'knex';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const pg = knex({
   client: 'pg',
@@ -14,8 +19,11 @@ const pg = knex({
 });
 
 const app = express();
-app.use(express.json()); // Added middleware
-app.use(express.static('dist'));
+app.use(express.json()); 
+
+const frontend = path.join(__dirname, 'dist');
+
+app.use(express.static(frontend));
 
 const config = {
   authRequired: false,
@@ -25,6 +33,7 @@ const config = {
   clientID: 'XUZuvE6pKXJ1di0ZaTnBNpfzxFswNHxI',
   issuerBaseURL: 'https://dev-6omitcvbhwq5hvfk.us.auth0.com'
 };
+app.use(auth(config));
 
 app.get('/api/problems', (req, res) => {
   pg('problems').select().then((problems) => {
@@ -38,8 +47,6 @@ app.get('/api/problems/:id', (req, res) => {
   });
 });
 
-app.use(auth(config));
-
 app.get("/pg", function(req, res, next) {
   pg.raw('select VERSION() version')
     .then(x => x.rows[0])
@@ -51,7 +58,6 @@ app.get('/a', (req, res) => {
   console.log(req.oidc.isAuthenticated());
   res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
 });
-
 
 app.post('/api/add-user', (req, res) => {
   const { auth0_user_id } = req.body;
@@ -68,6 +74,12 @@ app.post('/api/add-user', (req, res) => {
       console.error('Error inserting user:', error);
       res.status(500).send('Internal Server Error');
     });
+});
+
+app.use('/', express.static(frontend));
+
+app.use((req, res, next) => {
+  res.sendFile(path.join(frontend, 'index.html'));
 });
 
 app.listen(3000, () => {

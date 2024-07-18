@@ -1,19 +1,21 @@
 // src/home.tsx
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
-import { useNavigate } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
+import { useAuth0 } from '@auth0/auth0-react';
 
 function Home() {
-  const navigate = useNavigate();  
+  const { logout } = useAuth0();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    navigate('/logout');
-    window.location.reload();
-    navigate('/');
+    logout({});
+    setTimeout(() => {
+      navigate('/');
+    }, 0);  
   };
 
   return (
