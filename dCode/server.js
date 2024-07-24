@@ -59,9 +59,50 @@ app.get("/pg", function(req, res, next) {
     .catch(next);
 });
 
+app.get("/api/db", function(req, res, next) {
+  pg('users')
+    .select()
+    .then((users) => res.json({ users }))
+    .catch(next);
+});
+
+app.get('/api/users', (req, res) => {
+  pg('users').select().then((users) => {
+    res.json(users);
+  });
+});
+
+app.post('/api/users/:id/add-saved-attempt', (req, res) => {
+  const { id } = req.params;
+  const { problem_id, description } = req.body;
+  pg('users')
+    .update({ saved_attempts: knex.raw('jsonb_set(??, ?, ?::jsonb)', ['saved_attempts', "$.problem_id", JSON.stringify(description)]) }).where('id', id)
+    .then(() => {
+      res.status(201).send('Saved attempt added');
+    })
+    .catch((error) => {
+      console.error('Error inserting saved attempt:', error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
 app.get('/a', (req, res) => {
   console.log(req.oidc.isAuthenticated());
   res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
+});
+
+app.get('/api/users/:id/saved-attempts', (req, res) => {
+  const { id } = req.params;
+  pg('users').select('saved_attempts').where('id', id).then((users) => {
+    res.json(users);
+  });
+});
+
+app.get('/api/users/:id/saved-attempts/:problem_id', (req, res) => {
+  const { id, problem_id } = req.params;
+  pg('users').select('saved_attempts').where('id', id).then((users) => {
+    res.json(users);
+  });
 });
 
 app.post('/api/add-user', (req, res) => {
