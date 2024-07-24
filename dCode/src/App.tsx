@@ -17,7 +17,7 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/dcode/*" element={<Home />}>
           <Route path="problems" element={<Problems />} />
-          <Route path="problem" element={<Problem />} />
+          <Route path="problem/:id" element={<Problem />} />
           <Route path="placement" element={<Placement />} />
           <Route path="about" element={<About />} />
           <Route path="result" element={<Result />} />
