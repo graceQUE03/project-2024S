@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     auth0_user_id VARCHAR(255) UNIQUE NOT NULL,
-    placement_test_taken BOOLEAN DEFAULT FALSE
+    placement_test_taken BOOLEAN DEFAULT FALSE,
+    saved_attempts JSONB DEFAULT '{}'::jsonb
 );
 
 CREATE TABLE IF NOT EXISTS problems (
