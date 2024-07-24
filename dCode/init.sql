@@ -3,4 +3,3 @@ CREATE TABLE IF NOT EXISTS users (
     auth0_user_id VARCHAR(255) UNIQUE NOT NULL,
     placement_test_taken BOOLEAN DEFAULT FALSE
 );
-
