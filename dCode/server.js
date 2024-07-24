@@ -91,6 +91,20 @@ app.get('/a', (req, res) => {
   res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
 });
 
+app.get('/api/users/:id/saved-attempts', (req, res) => {
+  const { id } = req.params;
+  pg('users').select('saved_attempts').where('id', id).then((users) => {
+    res.json(users);
+  });
+});
+
+app.get('/api/users/:id/saved-attempts/:problem_id', (req, res) => {
+  const { id, problem_id } = req.params;
+  pg('users').select('saved_attempts').where('id', id).then((users) => {
+    res.json(users);
+  });
+});
+
 app.post('/api/add-user', (req, res) => {
   const { auth0_user_id } = req.body;
   if (!auth0_user_id) {
