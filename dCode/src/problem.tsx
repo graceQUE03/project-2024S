@@ -79,6 +79,24 @@ const Problem: React.FC = () => {
       console.error('Error marking problem as complete:', error);
     }
   };
+
+  async function save() {
+    console.log('Saving code:', prompt);
+    // Save the generated code, TODO get user id
+    const response = await axios.get('/api/user');
+    console.log(response.data);
+    const userId = response.data.id;
+    axios.post('/api/users/'+userId+'/add-saved-attempt', {
+      problem_id: id,
+      description: prompt
+    })
+      .then(response => {
+        console.log('Code saved:', response.data);
+      })
+      .catch(error => {
+        console.error('Error saving code:', error);
+      });
+  }
   
 
   return (
@@ -109,7 +127,7 @@ const Problem: React.FC = () => {
           </Button>
         </Grid>
         <Grid item>
-          <Button variant="contained" color="secondary">
+          <Button variant="contained" color="secondary" onClick={save}>
             Save
           </Button>
         </Grid>

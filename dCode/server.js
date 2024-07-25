@@ -1,5 +1,7 @@
 import express from 'express';
-import { auth } from 'express-openid-connect';
+//import { auth, requiresAuth } from 'express-openid-connect';
+import pkg from 'express-openid-connect';                                                                                                                                                                                                                                  
+const { auth, requiresAuth } = pkg;
 import knex from 'knex';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -72,11 +74,19 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+app.get('/profile', requiresAuth(), (req, res) => {
+  res.send(JSON.stringify(req.oidc.user, null, 2));
+});
+
+app.get('/api/user', (req, res) => {
+  res.send({id: req.oidc.user.sub});
+});
+
 app.post('/api/users/:id/add-saved-attempt', (req, res) => {
   const { id } = req.params;
   const { problem_id, description } = req.body;
   pg('users')
-    .update({ saved_attempts: pg.raw('jsonb_set(??, ?, ?::jsonb)', ['saved_attempts', "{" + problem_id + "}", JSON.stringify(description)]) }).where('id', id)
+    .update({ saved_attempts: pg.raw('jsonb_set(??, ?, ?::jsonb)', ['saved_attempts', "{" + problem_id + "}", JSON.stringify(description)]) }).where('auth0_user_id', id)
     .then(() => {
       res.status(201).send('Saved attempt added');
     })
