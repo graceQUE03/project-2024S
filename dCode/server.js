@@ -12,10 +12,8 @@ const __dirname = path.dirname(__filename);
 const pg = knex({
   client: 'pg',
   connection: {
-    // host: 'db',
-    // password: 'asdfasdf123123',
-    host: 'localhost',
-    password: 'pc',
+    host: 'db',
+    password: 'asdfasdf123123',
     port: 5432,
     user: 'postgres',
     database: 'example',
