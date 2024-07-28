@@ -1,11 +1,12 @@
 import express from 'express';
-import { auth } from 'express-openid-connect';
+import pkg from 'express-openid-connect';
 import knex from 'knex';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import axios from 'axios';
 import cors from 'cors';
 
+const { auth, requiresAuth } = pkg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -16,7 +17,6 @@ const pg = knex({
     password: 'asdfasdf123123',
     port: 5432,
     user: 'postgres',
-
     database: 'example',
   },
 });
@@ -26,7 +26,6 @@ app.use(cors());
 app.use(express.json()); 
 
 const frontend = path.join(__dirname, 'dist');
-
 
 app.use(express.static(frontend));
 
@@ -105,22 +104,21 @@ app.get('/api/users/:id/saved-attempts/:problem_id', (req, res) => {
   });
 });
 
-app.post('/api/add-user', (req, res) => {
-  const { auth0_user_id } = req.body;
+
+app.post('/api/add-user', requiresAuth(), (req, res) => {
+  const auth0_user_id = req.oidc.user.sub;
   if (!auth0_user_id) {
     return res.status(400).send('Missing auth0_user_id');
   }
 
   pg('users')
     .insert({ auth0_user_id })
+    .onConflict('auth0_user_id')
+    .ignore()
     .then(() => {
-      res.status(201).send('User added');
+      res.status(201).send('User added successfully');
     })
-    .catch((error) => {
-      console.error('Error inserting user:', error);
-      res.status(500).send('Internal Server Error');
-    });
-});
+  });
 
 const OPENAI_API_KEY = 'sk-None-fduxrKKMpGv2rOLEAbHMT3BlbkFJCnj2OnDSUoCcmC3Bufav';
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
@@ -158,6 +156,14 @@ const callOpenAI = async (prompt) => {
   }
 };
 
+app.get('/profile', requiresAuth(), (req, res) => {
+  res.send(JSON.stringify(req.oidc.user, null, 2));
+});
+
+app.get('/api/user', (req, res) => {
+  res.send(req.oidc.user.sub);
+});
+
 app.post('/api/openai-test', async (req, res) => {
   const { prompt } = req.body;
   try {
@@ -167,6 +173,42 @@ app.post('/api/openai-test', async (req, res) => {
     console.error('Error in /api/openai-test route:', error.message);
     res.status(500).send('Internal Server Error');
   }
+});
+
+app.post('/api/problem-complete', requiresAuth(), (req, res) => {
+  const {auth0_user_id, problem_id } = req.body;
+  const status = 'complete';
+  const score = 50;
+
+  pg('user_problem_attempts')
+    .insert({
+      auth0_user_id,
+      problem_id,
+      status,
+      score
+    })
+    .then(() => {
+      res.status(201).send('Problem marked as complete');
+    })
+    .catch((error) => {
+      console.error('Error inserting problem attempt:', error);
+      res.status(500).send('Internal Server Error');
+    });
+});
+
+app.get('/api/user-problem-attempts/:auth0_user_id/:problem_id', requiresAuth(), (req, res) => {
+  const { auth0_user_id, problem_id } = req.params;
+  
+  pg('user_problem_attempts')
+    .select('status', 'score', 'attempt_date')
+    .where({ auth0_user_id, problem_id })
+    .then((attempts) => {
+      res.json(attempts);
+    })
+    .catch((error) => {
+      console.error('Error fetching user problem attempts:', error);
+      res.status(500).send('Internal Server Error');
+    });
 });
 
 app.use('/', express.static(frontend));

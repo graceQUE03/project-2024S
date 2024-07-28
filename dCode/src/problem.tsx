@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Button, TextField, Typography, Box, Grid } from "@mui/material";
 import axios from 'axios';
 import './App.css';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const Problem: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [prompt, setPrompt] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
-  const navigate = useNavigate();
+  const [attempts, setAttempts] = useState<{ score: number; attempt_date: string }[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -16,16 +17,6 @@ const Problem: React.FC = () => {
       return;
     }
     console.log("Problem ID:", id);
-
-    // Fetch problem details if needed using the id
-    // Example:
-    // axios.get(`/api/problems/${id}`)
-    //   .then(response => {
-    //     // Handle the response to fetch problem details
-    //   })
-    //   .catch(error => {
-    //     console.error('Error fetching problem:', error);
-    //   });
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -47,39 +38,60 @@ const Problem: React.FC = () => {
   };
 
   const handleMarkComplete = async () => {
+    console.log("getting here");
+
     try {
-      const response = await axios.get('/api/user');
-      const userId = response.data.auth0_user_id;
-      console.log(userId);
-  
-      if (!userId) {
-        alert("Please log in to submit the problem.");
-        return;
-      }
-  
+      // Fetch the user ID from the API
+      const userResponse = await axios.get('http://localhost:3000/api/user');
+      const auth0_user_id = userResponse.data;
+
       if (!id) {
-        alert("No id found");
+        alert("Problem ID is missing.");
         return;
       }
-  
-      const markCompleteResponse = await axios.post('http://localhost:3000/api/mark-complete', {
-        auth0_user_id: userId,
-        problem_id: parseInt(id, 10),
-        status: 'complete',
-        score: 50
+
+      // Make the request to mark the problem as complete
+      await axios.post('http://localhost:3000/api/problem-complete', {
+        auth0_user_id: String(auth0_user_id),
+        problem_id: parseInt(id, 10)
       });
-  
-      if (markCompleteResponse.status === 201) {
-        alert('Problem marked as complete.');
-        navigate("/dcode/problems");
-      } else {
-        alert('Failed to mark problem as complete.');
-      }
+
+      alert("Problem marked as complete!");
     } catch (error) {
-      console.error('Error marking problem as complete:', error);
+      console.error("Error marking problem as complete:", error);
+      alert("There was an error marking the problem as complete.");
     }
   };
-  
+
+  const handleViewHistory = async () => {
+    try {
+      // Fetch the user ID from the API
+      const userResponse = await axios.get('http://localhost:3000/api/user');
+      const auth0_user_id = userResponse.data;
+
+      if (!id) {
+        alert("Problem ID is missing.");
+        return;
+      }
+
+      // Make the request to fetch the user's problem attempts
+      const attemptsResponse = await axios.get(`http://localhost:3000/api/user-problem-attempts/${auth0_user_id}/${id}`);
+
+      setAttempts(attemptsResponse.data);
+      setShowHistory(true);
+    } catch (error) {
+      console.error("Error fetching problem attempts:", error);
+      alert("There was an error fetching the problem attempts.");
+    }
+  };
+
+  const getStatusColor = (score: number) => {
+    return score === 100 ? 'green' : 'red';
+  };
+
+  const getStatusText = (score: number) => {
+    return score === 100 ? 'PASS' : 'FAILED';
+  };
 
   return (
     <div className="App">
@@ -104,7 +116,7 @@ const Problem: React.FC = () => {
       </Box>
       <Grid container spacing={2} justifyContent="center" mt={4}>
         <Grid item>
-          <Button variant="contained" color="warning">
+          <Button variant="contained" color="warning" onClick={handleViewHistory}>
             View History
           </Button>
         </Grid>
@@ -119,6 +131,20 @@ const Problem: React.FC = () => {
           </Button>
         </Grid>
       </Grid>
+      {showHistory && (
+        <Box mt={4}>
+          <Typography variant="h5">Previous Attempts:</Typography>
+          {attempts.map((attempt, index) => (
+            <Box key={index} p={2} border={1} borderColor="grey.300" borderRadius={4} mt={2}>
+              <Typography>
+                Status: <span style={{ color: getStatusColor(attempt.score) }}>{getStatusText(attempt.score)}</span>
+              </Typography>
+              <Typography>Score: {attempt.score}</Typography>
+              <Typography>Date: {new Date(attempt.attempt_date).toLocaleString()}</Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
     </div>
   );
 };

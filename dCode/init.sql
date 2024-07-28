@@ -26,11 +26,9 @@ VALUES('Factorial', 'Recursive function to calculate factorial', 'function fac(n
 
 CREATE TABLE IF NOT EXISTS user_problem_attempts (
     attempt_id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL,
+    auth0_user_id VARCHAR(255) NOT NULL,
     problem_id INT NOT NULL,
     status VARCHAR(50) DEFAULT 'unstarted' CHECK (status IN ('incomplete', 'complete', 'unstarted')),
     score INT,
-    attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (problem_id) REFERENCES problems(problem_id)
+    attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
