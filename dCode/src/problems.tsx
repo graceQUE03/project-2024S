@@ -1,7 +1,7 @@
 import './App.css';
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
-import { Box, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from "@mui/material";
+import {Box, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Paper } from "@mui/material";
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -9,7 +9,7 @@ import FormControl from '@mui/material/FormControl';
 import ListItemText from '@mui/material/ListItemText';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
-import { useTheme, lighten } from '@mui/material/styles';
+import {useTheme, lighten} from '@mui/material/styles';
 import axios from 'axios';
 
 const ITEM_HEIGHT = 48;
@@ -45,15 +45,15 @@ function calcCompleted(rowsArray: any[]) {
 function MultipleSelectCheckmarks(category: string, selected: string[], handleChange: any) {
   return (
     <div>
-      <FormControl sx={{ m: 1, width: 200 }}>
+      <FormControl sx={{m:1, width: 200 }}>
         <InputLabel id="demo-multiple-checkbox-label">{category}</InputLabel>
         <Select
-          labelId={`${category}-select-label`}
-          id={`${category}-select`}
+          labelId="${category}-select-label"
+          id="${category}-select"
           multiple
           value={selected}
           onChange={handleChange}
-          input={<OutlinedInput label={category} />}
+          input={<OutlinedInput label= {category}/>}
           renderValue={(selected) => selected.join(', ')}
           MenuProps={MenuProps}
         >
@@ -99,7 +99,7 @@ function Problems() {
 
   React.useEffect(() => {
     // Fetch problems data from the API
-    axios.get('/api/problems')
+    axios.get('http://localhost:3000/api/problems')
       .then(response => {
         const fetchedProblems = response.data.map((problem: any) => ({
           id: problem.problem_id,

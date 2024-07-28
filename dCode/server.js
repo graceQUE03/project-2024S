@@ -12,11 +12,12 @@ const __dirname = path.dirname(__filename);
 const pg = knex({
   client: 'pg',
   connection: {
-    host: 'db',
-    password: 'asdfasdf123123',
+    // host: 'db',
+    // password: 'asdfasdf123123',
+    host: 'localhost',
+    password: 'pc',
     port: 5432,
     user: 'postgres',
-
     database: 'example',
   },
 });
@@ -50,6 +51,24 @@ app.get('/api/problems/:id', (req, res) => {
   pg('problems').select().where('problem_id', req.params.id).then((problems) => {
     res.json(problems);
   });
+});
+
+// getting tests
+app.get("/api/tests", (req, res) => {
+  pg("tests")
+    .select()
+    .then((tests) => {
+      res.json(tests);
+    });
+});
+
+app.get("/api/tests/:id", (req, res) => {
+  pg("tests")
+    .select()
+    .where("test_id", req.params.id)
+    .then((tests) => {
+      res.json(tests);
+    });
 });
 
 app.get("/pg", function(req, res, next) {
@@ -158,14 +177,70 @@ const callOpenAI = async (prompt) => {
   }
 };
 
-app.post('/api/openai-test', async (req, res) => {
+// openai-test
+app.post("/api/openai-test", async (req, res) => {
   const { prompt } = req.body;
   try {
+    // call OpenAI and get generated code
     const generatedCode = await callOpenAI(prompt);
     res.json({ generatedCode });
   } catch (error) {
-    console.error('Error in /api/openai-test route:', error.message);
-    res.status(500).send('Internal Server Error');
+    console.error("Error in /api/openai-test route:", error.message);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.post("/api/test-generated-code", async (req, res) => {
+  const { generatedCode, id } = req.body;
+  let fetchedTests;
+
+  try {
+    // (1) fetch problem
+    const response = await axios.get(`http://localhost:3000/api/tests/${id}`);
+    fetchedTests = response.data[0].data;
+    console.log(fetchedTests.test1.input);
+    console.log(generatedCode);
+
+    // (2) convert code string into javascript function
+    const appendHelper = `return (${generatedCode})`;
+    const foo = new Function(appendHelper)();
+
+    // (3) run the generated function with stored input
+    const outputs = [];
+    const output1 = foo(
+      fetchedTests.test1.input[0],
+      fetchedTests.test1.input[1]
+    );
+    const output2 = foo(
+      fetchedTests.test2.input[0],
+      fetchedTests.test2.input[1]
+    );
+    const output3 = foo(
+      fetchedTests.test3.input[0],
+      fetchedTests.test3.input[1]
+    );
+    const output4 = foo(
+      fetchedTests.test4.input[0],
+      fetchedTests.test4.input[1]
+    );
+    const output5 = foo(
+      fetchedTests.test5.input[0],
+      fetchedTests.test5.input[1]
+    );
+    outputs.push(output1, output2, output3, output4, output5);
+
+    const result = {
+      actualOutput1: outputs[0],
+      actualOutput2: outputs[1],
+      actualOutput3: outputs[2],
+      actualOutput4: outputs[3],
+      actualOutput5: outputs[4],
+    };
+
+    res.json({ result });
+  } catch (error) {
+    console.error("Error in /api/openai-test route:", error.message);
+    res.status(500).send("Internal Server Error");
   }
 });
 

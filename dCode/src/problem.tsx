@@ -8,6 +8,7 @@ const Problem: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [prompt, setPrompt] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
+  const [result, setResult] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,11 +37,21 @@ const Problem: React.FC = () => {
         prompt
       });
 
+      // trim the generated code from the response
       let trimmedCode = response.data.generatedCode;
       let code = trimmedCode.split("```javascript");
       code = code[1].split("```");
 
       setGeneratedCode(code[0]);
+
+      console.log(code[0]);
+
+      const response2 = await axios.post('http://localhost:3000/api/test-generated-code', {generatedCode:  code[0], id: id});
+      
+      console.log(code[0]);
+
+      setResult(response2.data);
+      console.log(response2.data);
     } catch (error) {
       setGeneratedCode('Error: ' + (error as Error).message);
     }
@@ -101,6 +112,10 @@ const Problem: React.FC = () => {
       <Typography variant="h2">Generated JavaScript Code: </Typography>
       <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
         {generatedCode}
+      </Box>
+      <Typography variant="h2">Result: </Typography>
+      <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
+      {JSON.stringify(result, null, 2)}
       </Box>
       <Grid container spacing={2} justifyContent="center" mt={4}>
         <Grid item>
