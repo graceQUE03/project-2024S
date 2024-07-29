@@ -12,8 +12,10 @@ const __dirname = path.dirname(__filename);
 const pg = knex({
   client: 'pg',
   connection: {
-    host: 'db',
-    password: 'asdfasdf123123',
+    // host: 'db',
+    // password: 'asdfasdf123123',
+    host: 'localhost',
+    password: 'pc',
     port: 5432,
     user: 'postgres',
     database: 'example',
@@ -49,24 +51,6 @@ app.get('/api/problems/:id', (req, res) => {
   pg('problems').select().where('problem_id', req.params.id).then((problems) => {
     res.json(problems);
   });
-});
-
-// getting tests
-app.get("/api/tests", (req, res) => {
-  pg("tests")
-    .select()
-    .then((tests) => {
-      res.json(tests);
-    });
-});
-
-app.get("/api/tests/:id", (req, res) => {
-  pg("tests")
-    .select()
-    .where("test_id", req.params.id)
-    .then((tests) => {
-      res.json(tests);
-    });
 });
 
 app.get("/pg", function(req, res, next) {
@@ -171,7 +155,7 @@ const callOpenAI = async (prompt) => {
     );
     return response.data.choices[0].message.content;
   } catch (error) {
-    console.error('Error calling OpenAI API:', error.response ? error.response.data : error.message);
+    console.error('Error calling OpenAI API:', error.message);
   }
 };
 
@@ -194,10 +178,8 @@ app.post("/api/test-generated-code", async (req, res) => {
 
   try {
     // (1) fetch problem
-    const response = await axios.get(`http://localhost:3000/api/tests/${id}`);
-    fetchedTests = response.data[0].data;
-    console.log(fetchedTests.test1.input);
-    console.log(generatedCode);
+    const response = await axios.get(`http://localhost:3000/api/problems/${id}`);
+    fetchedTests = response.data[0].tests;
 
     // (2) convert code string into javascript function
     const appendHelper = `return (${generatedCode})`;
