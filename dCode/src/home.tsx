@@ -6,6 +6,7 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import { useAuth0 } from '@auth0/auth0-react';
+import axios from 'axios';
 
 function Home() {
   const { logout } = useAuth0();
@@ -17,6 +18,8 @@ function Home() {
       navigate('/');
     }, 0);  
   };
+
+  axios.post('/api/add-user');
 
   return (
     <div>
