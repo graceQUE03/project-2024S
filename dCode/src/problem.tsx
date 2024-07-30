@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
+  LinearProgress,
 } from "@mui/material";
 import axios from "axios";
 import CloseIcon from "@mui/icons-material/Close";
@@ -29,6 +30,7 @@ const Problem: React.FC = () => {
   const [problemCode, setProblemCode] = useState<string>("");
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number>(0);
+  const [passedTests, setPassedTests] = useState<number>(0);
   const actualOutputs: any[] = [];
 
   const exception1 =
@@ -97,19 +99,19 @@ const Problem: React.FC = () => {
 
       setResult(response2.data);
 
-      // Calculate score
       const obj = response2.data;
       const totalTests = Object.keys(problemTests).length;
-      let passedTests = 0;
+      let passedTestsCount = 0;
       for (let i = 1; i <= totalTests; i++) {
         if (
           obj.result[`actualOutput${i}`] === problemTests[`test${i}`].output
         ) {
-          passedTests++;
+          passedTestsCount++;
         }
       }
-      const calculatedScore = Math.round((passedTests / totalTests) * 100);
+      const calculatedScore = Math.round((passedTestsCount / totalTests) * 100);
       setScore(calculatedScore);
+      setPassedTests(passedTestsCount);
 
       const userResponse = await axios.get("http://localhost:3000/api/user");
       const auth0_user_id = userResponse.data;
@@ -147,7 +149,7 @@ const Problem: React.FC = () => {
       const attemptsResponse = await axios.get(
         `http://localhost:3000/api/user-problem-attempts/${auth0_user_id}/${id}`
       );
-      setAttempts(attemptsResponse.data);
+      setAttempts(attemptsResponse.data.reverse()); 
       setShowHistory(true);
     } catch (error) {
       console.error("Error fetching problem attempts:", error);
@@ -164,17 +166,15 @@ const Problem: React.FC = () => {
   };
 
   const getStatusText = (score: number) => {
-    return score === 100 ? "PASS" : "FAILED";
+    return score === 100 ? "PASSED" : "FAILED";
   };
 
-  // return the result for each case
   const testResult = (testCase: number) => {
     const testIndex = testCase - 1;
     const testNumber = `test${testCase}`;
     const description = problemTests[testNumber].description;
     const expectedOutput = problemTests[testNumber].output;
     let actualOutput;
-    // special case: round the decimal numbers to the decimal place as the expected output
     if (
       typeof expectedOutput === "number" &&
       !Number.isInteger(expectedOutput)
@@ -195,7 +195,6 @@ const Problem: React.FC = () => {
     );
   };
 
-  // display all 5 test case results
   const displayResult = () => {
     if (result === "") {
       return result;
@@ -256,6 +255,11 @@ const Problem: React.FC = () => {
           variant="outlined"
           fullWidth
           margin="normal"
+          InputProps={{
+            style: {
+              color: 'black',  
+            },
+          }}
         />
         {!showResults &&
           (generatedCode === exception1 || generatedCode === exception2) && (
@@ -289,9 +293,29 @@ const Problem: React.FC = () => {
       </form>
       {showResults && (
         <>
-          <Typography variant="h4" mt={4}>
-            Score: {score}
-          </Typography>
+          <Box mt={4} p={2} bgcolor={score === 100 ? "green" : "red"} borderRadius={2}>
+            <Typography variant="h6" style={{ color: "white" }}>
+              {score === 100 ? "All Tests Passed" : "Test Cases Failed"}
+            </Typography>
+            <Typography variant="h6" style={{ color: "white" }}>
+              {score}%
+            </Typography>
+            <Typography variant="h6" style={{ color: "white" }}>
+              {`${passedTests}/${Object.keys(problemTests).length}`}
+            </Typography>
+          </Box>
+          <LinearProgress
+            variant="determinate"
+            value={score}
+            sx={{
+              mt: 2,
+              height: 13,
+              borderRadius: 5,
+              '& .MuiLinearProgress-bar': {
+                bgcolor: 'green'
+              }
+            }}
+          />
           <Typography variant="h4" mt={4}>
             Generated JavaScript Code
           </Typography>
