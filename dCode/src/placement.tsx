@@ -2,6 +2,8 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useNavigate } from 'react-router-dom'; 
 import "./App.css";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 // display problem number, problem statement and type box for description
 function displayProblemBox(number: number, problem: string) {
@@ -33,12 +35,20 @@ function displayProblemBox(number: number, problem: string) {
           width={500}
           my={4}
           display="flex"
-          flexDirection="row"
+          flexDirection="column"
           justifyContent="center"
+          alignItems = "center"
           p={2}
           sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
         >
-          <pre>{problem}</pre>
+          <Box>
+          <pre style={{
+            fontSize: '18px', 
+            width: '100%', 
+            whiteSpace: 'pre-wrap'
+            }}>{problem}</pre>
+          </Box>
+
         </Box>
       </Box>
       <Box
@@ -54,21 +64,61 @@ function displayProblemBox(number: number, problem: string) {
           multiline
           minRows={4}
           maxRows={10}
+          InputProps={{
+            sx: {
+              color: '#ffffff',
+            },
+          }}
+          InputLabelProps={{
+            sx: {
+              color:'#c0c0f2',
+            },
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': {
+                borderColor: '#c0c0f2',
+              },
+            '&:hover fieldset': {
+            borderColor: '#6c68fb', 
+          }}
+            }}
         />
       </Box>
     </>
   );
 };
 
-function Placement() {
-  const firstProblem = ` # Program to display the Fibonacci sequence
-  recurse_fibonacci <- function(n) {
-    if (n <= 1) {
-      return(n);
-    } else {
-      return(recurse_fibonacci(n-1) + recurse_fibonacci(n-2));
-    }
-  }`;
+const Placement: React.FC = () =>{
+  // for now fixed problem numbers
+  const [problemEasy, setProblemEasy] = useState<string>("");
+  const [problemMedium, setProblemMedium] = useState<string>("");
+  const [problemHard, setProblemHard] = useState<string>("");
+
+  useEffect(() => {
+    const fetchProblems = async (id: number) => {
+      try {
+        const fetchedProblems = await axios.get(
+          `http://localhost:3000/api/problems/${id}`
+        );
+        //easy; medium; hard
+        if (id === 1) {
+          setProblemEasy(fetchedProblems.data[0].code);
+        } else if (id === 2) {
+          setProblemMedium(fetchedProblems.data[0].code);
+        } else {
+          setProblemHard(fetchedProblems.data[0].code);
+        }
+
+      } catch (error) {
+        console.error("Error fetching problems: ", error);
+      }
+    };
+
+    fetchProblems(1);
+    fetchProblems(2);
+    fetchProblems(3);
+  }, []);
 
   const navigate = useNavigate();  
 
@@ -93,9 +143,9 @@ function Placement() {
       </Typography>
 
       {/* Problems */}
-      {displayProblemBox(1, firstProblem)}
-      {displayProblemBox(2, firstProblem)}
-      {displayProblemBox(3, firstProblem)}
+      {displayProblemBox(1, problemEasy)}
+      {displayProblemBox(2, problemMedium)}
+      {displayProblemBox(3, problemHard)}
 
       {/* Submit Button */}
       <Button 

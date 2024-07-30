@@ -28,8 +28,8 @@ return a + b;
   }');
 
 INSERT INTO problems (name, description, code, difficulty, tests)
-VALUES('Factorial', 'Recursive function to calculate factorial', 'function fac(n) {
-  return n < 2 ? 1 : n * fac(n - 1);
+VALUES('Factorial', 'Recursive function to calculate factorial', 'function foo(n) {
+  return n < 2 ? 1 : n * foo(n - 1);
 };', 'medium',
   '{
     "test1": {"description": "factorial of 1", "input": [1], "output": 1}, 
@@ -40,16 +40,18 @@ VALUES('Factorial', 'Recursive function to calculate factorial', 'function fac(n
   }');
 
   INSERT INTO problems (name, description, code, difficulty, tests)
-VALUES('Addition', 'Simple addition of two numbers', 'function(a, b + c) {
-return a + b + c;
-}', 'easy', 
+VALUES('Sentence and Words', 'Reverse the characters of each word in a given sentence while maintaining the word order', 
+'function reverseWords(sentence) {
+  return sentence.split(" ").map(word => word.split("").reverse().join("")).join(" ");
+}', 'hard', 
 '{
-    "test1": {"description": "adding three positive numbers", "input": [2, 3, 5], "output": 10}, 
-    "test2": {"description": "adding zero and two positive numbers", "input": [0, 3, 7], "output": 10},
-    "test3": {"description": "adding two negative numbers and a positive number", "input": [-7, -9, 2], "output": -14}, 
-    "test4": {"description": "adding two positive numbers and a negative number", "input": [6, 14, -2], "output": 18},
-    "test5": {"description": "adding three decimal numbers", "input": [4.5, 2.3, 0.1], "output": 6.9}
+    "test1": {"description": "hello world", "input": ["hello world"], "output": "olleh dlrow"}, 
+    "test2": {"description": "a b c", "input": ["a b c"], "output": "c b a"},
+    "test3": {"description": "aaa", "input": ["aaa"], "output": "aaa"}, 
+    "test4": {"description": "an empty string", "input": [""], "output": ""},
+    "test5": {"description": "I am using dcode!", "input": ["I am using dcode!"], "output": "!edocd gnisu ma I"}
   }');
+
 
 CREATE TABLE IF NOT EXISTS user_problem_attempts (
     attempt_id SERIAL PRIMARY KEY,
