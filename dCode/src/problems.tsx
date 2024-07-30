@@ -53,7 +53,7 @@ function MultipleSelectCheckmarks(
   return (
     <div>
       <FormControl sx={{ m: 1, width: 200 }}>
-        <InputLabel id="demo-multiple-checkbox-label">{category}</InputLabel>
+        <InputLabel id="demo-multiple-checkbox-label" sx={{color: '#6c68fb'}}>{category}</InputLabel>
         <Select
           labelId="${category}-select-label"
           id="${category}-select"

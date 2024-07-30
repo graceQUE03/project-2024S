@@ -228,12 +228,12 @@ const Problem: React.FC = () => {
       {problemCode && (
         <Box
           component="pre"
-          bgcolor="white"
+          bgcolor="black"
           p={4}
           mt={10}
           borderRadius={4}
           sx={{
-            color: "black",
+            color: "white",
             boxShadow: 3,
             fontFamily: "monospace",
             fontSize: "1rem",
@@ -244,8 +244,8 @@ const Problem: React.FC = () => {
           {problemCode}
         </Box>
       )}
-      <Typography variant="h4" mt={4}>
-        OpenAI JavaScript Code
+      <Typography variant="h5" mt={4}>
+        Describe the code above in plain English.
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
@@ -257,13 +257,14 @@ const Problem: React.FC = () => {
           fullWidth
           margin="normal"
         />
-        {!showResults && (generatedCode === exception1 || generatedCode === exception2) &&(
-          <>
-          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
-            {generatedCode}
-          </Box>
-          </>
-        )}
+        {!showResults &&
+          (generatedCode === exception1 || generatedCode === exception2) && (
+            <>
+              <Box bgcolor="black" p={4} mt={4} borderRadius={4}>
+                <Typography variant="h5">{generatedCode}</Typography>
+              </Box>
+            </>
+          )}
         <Grid container spacing={2} justifyContent="center" mt={4}>
           <Grid item>
             <Button type="submit" variant="contained" color="primary">
