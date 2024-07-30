@@ -57,5 +57,7 @@ CREATE TABLE IF NOT EXISTS user_problem_attempts (
     problem_id INT NOT NULL,
     status VARCHAR(50) DEFAULT 'unstarted' CHECK (status IN ('incomplete', 'complete', 'unstarted')),
     score INT,
-    attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    attempt_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_description TEXT DEFAULT '',
+    generated_code TEXT DEFAULT ''
 );

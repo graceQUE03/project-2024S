@@ -125,9 +125,9 @@ const Problem: React.FC = () => {
         auth0_user_id: String(auth0_user_id),
         problem_id: parseInt(id, 10),
         score: calculatedScore,
+        user_description: prompt,
+        generated_code: code[0],
       });
-
-      alert("Problem marked as complete!");
 
       setShowResults(true);
     } catch (error) {

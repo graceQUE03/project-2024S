@@ -226,13 +226,12 @@ app.post("/api/test-generated-code", async (req, res) => {
 
     // (3) run the generated function with stored input
     const outputs = [];
-
     const output1 = foo(...fetchedTests.test1.input);
     const output2 = foo(...fetchedTests.test2.input);
     const output3 = foo(...fetchedTests.test3.input);
     const output4 = foo(...fetchedTests.test4.input);
     const output5 = foo(...fetchedTests.test5.input);
-
+    
     outputs.push(output1, output2, output3, output4, output5);
 
     const result = {
@@ -251,8 +250,8 @@ app.post("/api/test-generated-code", async (req, res) => {
 });
 
 app.post("/api/problem-complete", requiresAuth(), (req, res) => {
-  const { auth0_user_id, problem_id, score } = req.body;
-  const status = "complete";
+  const { auth0_user_id, problem_id, score, user_description, generated_code } = req.body;
+  const status = score === 100 ? "complete" : "incomplete";
 
   pg("user_problem_attempts")
     .insert({
@@ -260,6 +259,8 @@ app.post("/api/problem-complete", requiresAuth(), (req, res) => {
       problem_id,
       status,
       score,
+      user_description,
+      generated_code,
     })
     .then(() => {
       res.status(201).send("Problem marked as complete");
@@ -290,9 +291,8 @@ app.get(
 );
 
 app.post("/api/problem-complete", requiresAuth(), (req, res) => {
-  const { auth0_user_id, problem_id } = req.body;
+  const { auth0_user_id, problem_id, score } = req.body;
   const status = "complete";
-  const score = 50;
 
   pg("user_problem_attempts")
     .insert({
