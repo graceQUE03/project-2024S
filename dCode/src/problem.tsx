@@ -1,22 +1,40 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextField, Typography, Box, Grid, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
-import axios from 'axios';
-import CloseIcon from '@mui/icons-material/Close';
-import { useParams } from 'react-router-dom';
-import './App.css';
+import {
+  Button,
+  TextField,
+  Typography,
+  Box,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+} from "@mui/material";
+import axios from "axios";
+import CloseIcon from "@mui/icons-material/Close";
+import { useParams } from "react-router-dom";
+import "./App.css";
 
 const Problem: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [prompt, setPrompt] = useState("");
   const [generatedCode, setGeneratedCode] = useState("");
   const [result, setResult] = useState("");
-  const [attempts, setAttempts] = useState<{ score: number; attempt_date: string }[]>([]);
+  const [attempts, setAttempts] = useState<
+    { score: number; attempt_date: string }[]
+  >([]);
   const [showHistory, setShowHistory] = useState(false);
   const [problemTests, setProblemTests] = useState<any>(null);
   const [problemCode, setProblemCode] = useState<string>("");
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState<number>(0);
   const actualOutputs: any[] = [];
+
+  const exception1 =
+    "Your description is a javascript code. Please describe the problem in plain English.";
+  const exception2 =
+    "Your description is not a valid sentence. Please describe the problem in plain English.";
 
   useEffect(() => {
     if (!id) {
@@ -27,13 +45,15 @@ const Problem: React.FC = () => {
 
     const fetchProblems = async () => {
       try {
-        const fetchedProblems = await axios.get(`http://localhost:3000/api/problems/${id}`);
+        const fetchedProblems = await axios.get(
+          `http://localhost:3000/api/problems/${id}`
+        );
         setProblemTests(fetchedProblems.data[0].tests);
-        setProblemCode(fetchedProblems.data[0].code);  
+        setProblemCode(fetchedProblems.data[0].code);
       } catch (error) {
         console.error("Error fetching problems: ", error);
       }
-    }
+    };
     fetchProblems();
   }, [id]);
 
@@ -41,41 +61,57 @@ const Problem: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/api/openai-test', {
-        prompt
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/openai-test",
+        {
+          prompt,
+        }
+      );
 
       let trimmedCode = response.data.generatedCode;
 
       if (trimmedCode === "exception 1") {
-        setGeneratedCode("Your description is a javascript code. Please describe the problem in plain English.")
+        setGeneratedCode(exception1);
         setResult("");
+        setScore(0);
+        setShowResults(false);
+        return;
       } else if (trimmedCode === "exception 2") {
-        setGeneratedCode("Your description is not a valid sentence. Please describe the problem in plain English.");
+        setGeneratedCode(exception2);
         setResult("");
-      } else {
-        let code = trimmedCode.split("```javascript");
-        code = code[1].split("```");
-  
-        setGeneratedCode(code[0]);
-
-        const response2 = await axios.post('http://localhost:3000/api/test-generated-code', {generatedCode:  code[0], id: id});
-        
-        console.log(code[0]);
-  
-        setResult(response2.data);
+        setScore(0);
+        setShowResults(false);
+        return;
       }
-    } catch (error) {
-      setGeneratedCode('Error: ' + (error as Error).message);
-    }
-  };
+      let code = trimmedCode.split("```javascript");
+      code = code[1].split("```");
 
-  const handleMarkComplete = async () => {
-    console.log("getting here");
+      setGeneratedCode(code[0]);
 
-    try {
-      // Fetch the user ID from the API
-      const userResponse = await axios.get('http://localhost:3000/api/user');
+      const response2 = await axios.post(
+        "http://localhost:3000/api/test-generated-code",
+        { generatedCode: code[0], id: id }
+      );
+
+      console.log(code[0]);
+
+      setResult(response2.data);
+
+      // Calculate score
+      const obj = response2.data;
+      const totalTests = Object.keys(problemTests).length;
+      let passedTests = 0;
+      for (let i = 1; i <= totalTests; i++) {
+        if (
+          obj.result[`actualOutput${i}`] === problemTests[`test${i}`].output
+        ) {
+          passedTests++;
+        }
+      }
+      const calculatedScore = Math.round((passedTests / totalTests) * 100);
+      setScore(calculatedScore);
+
+      const userResponse = await axios.get("http://localhost:3000/api/user");
       const auth0_user_id = userResponse.data;
 
       if (!id) {
@@ -83,25 +119,24 @@ const Problem: React.FC = () => {
         return;
       }
 
-      await axios.post('http://localhost:3000/api/problem-complete', {
+      await axios.post("http://localhost:3000/api/problem-complete", {
         auth0_user_id: String(auth0_user_id),
         problem_id: parseInt(id, 10),
-        score: calculatedScore
+        score: calculatedScore,
       });
 
       alert("Problem marked as complete!");
 
       setShowResults(true);
-
     } catch (error) {
-      setGeneratedCode('Error: ' + (error as Error).message);
+      setGeneratedCode("Error: " + (error as Error).message);
       alert("There was an error marking the problem as complete.");
     }
   };
 
   const handleViewHistory = async () => {
     try {
-      const userResponse = await axios.get('http://localhost:3000/api/user');
+      const userResponse = await axios.get("http://localhost:3000/api/user");
       const auth0_user_id = userResponse.data;
 
       if (!id) {
@@ -109,7 +144,9 @@ const Problem: React.FC = () => {
         return;
       }
 
-      const attemptsResponse = await axios.get(`http://localhost:3000/api/user-problem-attempts/${auth0_user_id}/${id}`);
+      const attemptsResponse = await axios.get(
+        `http://localhost:3000/api/user-problem-attempts/${auth0_user_id}/${id}`
+      );
       setAttempts(attemptsResponse.data);
       setShowHistory(true);
     } catch (error) {
@@ -123,13 +160,14 @@ const Problem: React.FC = () => {
   };
 
   const getStatusColor = (score: number) => {
-    return score === 100 ? 'green' : 'red';
+    return score === 100 ? "green" : "red";
   };
 
   const getStatusText = (score: number) => {
-    return score === 100 ? 'PASS' : 'FAILED';
+    return score === 100 ? "PASS" : "FAILED";
   };
 
+  // return the result for each case
   const testResult = (testCase: number) => {
     const testIndex = testCase - 1;
     const testNumber = `test${testCase}`;
@@ -137,7 +175,10 @@ const Problem: React.FC = () => {
     const expectedOutput = problemTests[testNumber].output;
     let actualOutput;
     // special case: round the decimal numbers to the decimal place as the expected output
-    if (typeof(expectedOutput) === 'number' && !Number.isInteger(expectedOutput)) {
+    if (
+      typeof expectedOutput === "number" &&
+      !Number.isInteger(expectedOutput)
+    ) {
       const decimal = expectedOutput.toString().split(".");
       const digitNum = decimal[1].length;
       actualOutput = Number(actualOutputs[testIndex].toFixed(digitNum));
@@ -148,12 +189,13 @@ const Problem: React.FC = () => {
 
     const text = `Test Case ${testCase} \n  Description: ${description} \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Passed: ${passed} \n \n`;
     return (
-      <Typography variant="h6" style={{ whiteSpace: 'pre-line' }}>
+      <Typography variant="h6" style={{ whiteSpace: "pre-line" }}>
         {text}
       </Typography>
-    )
-  }
+    );
+  };
 
+  // display all 5 test case results
   const displayResult = () => {
     if (result === "") {
       return result;
@@ -161,14 +203,14 @@ const Problem: React.FC = () => {
 
     const text = JSON.stringify(result, null, 2);
     const obj = JSON.parse(text);
-    
+
     actualOutputs.push(
       obj.result.actualOutput1,
       obj.result.actualOutput2,
       obj.result.actualOutput3,
       obj.result.actualOutput4,
       obj.result.actualOutput5
-    )
+    );
 
     return (
       <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
@@ -178,8 +220,8 @@ const Problem: React.FC = () => {
         {testResult(4)}
         {testResult(5)}
       </Box>
-    )
-  }
+    );
+  };
 
   return (
     <div className="App">
@@ -191,18 +233,20 @@ const Problem: React.FC = () => {
           mt={10}
           borderRadius={4}
           sx={{
-            color: 'black',
+            color: "black",
             boxShadow: 3,
-            fontFamily: 'monospace',
-            fontSize: '1rem',
-            whiteSpace: 'pre-wrap',
-            wordWrap: 'break-word',
+            fontFamily: "monospace",
+            fontSize: "1rem",
+            whiteSpace: "pre-wrap",
+            wordWrap: "break-word",
           }}
         >
           {problemCode}
         </Box>
       )}
-      <Typography variant="h4" mt={4}>OpenAI JavaScript Code</Typography>
+      <Typography variant="h4" mt={4}>
+        OpenAI JavaScript Code
+      </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           multiline
@@ -213,6 +257,13 @@ const Problem: React.FC = () => {
           fullWidth
           margin="normal"
         />
+        {!showResults && (generatedCode === exception1 || generatedCode === exception2) &&(
+          <>
+          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+            {generatedCode}
+          </Box>
+          </>
+        )}
         <Grid container spacing={2} justifyContent="center" mt={4}>
           <Grid item>
             <Button type="submit" variant="contained" color="primary">
@@ -220,7 +271,11 @@ const Problem: React.FC = () => {
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" color="warning" onClick={handleViewHistory}>
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={handleViewHistory}
+            >
               View History
             </Button>
           </Grid>
@@ -233,32 +288,59 @@ const Problem: React.FC = () => {
       </form>
       {showResults && (
         <>
-          <Typography variant="h4" mt={4}>Score: {score}</Typography>
-          <Typography variant="h4" mt={4}>Generated JavaScript Code</Typography>
+          <Typography variant="h4" mt={4}>
+            Score: {score}
+          </Typography>
+          <Typography variant="h4" mt={4}>
+            Generated JavaScript Code
+          </Typography>
           <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
             {generatedCode}
           </Box>
-          <Typography variant="h4" mt={4}>Test Case Results</Typography>
+          <Typography variant="h4" mt={4}>
+            Test Case Results
+          </Typography>
           <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
             {displayResult()}
           </Box>
         </>
       )}
-      <Dialog open={showHistory} onClose={handleCloseHistory} maxWidth="md" fullWidth>
+      <Dialog
+        open={showHistory}
+        onClose={handleCloseHistory}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>
           Previous Attempts
-          <IconButton aria-label="close" onClick={handleCloseHistory} style={{ position: 'absolute', right: 8, top: 8 }}>
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseHistory}
+            style={{ position: "absolute", right: 8, top: 8 }}
+          >
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
           {attempts.map((attempt, index) => (
-            <Box key={index} p={2} border={1} borderColor="grey.300" borderRadius={4} mt={2}>
+            <Box
+              key={index}
+              p={2}
+              border={1}
+              borderColor="grey.300"
+              borderRadius={4}
+              mt={2}
+            >
               <Typography>
-                Status: <span style={{ color: getStatusColor(attempt.score) }}>{getStatusText(attempt.score)}</span>
+                Status:{" "}
+                <span style={{ color: getStatusColor(attempt.score) }}>
+                  {getStatusText(attempt.score)}
+                </span>
               </Typography>
               <Typography>Score: {attempt.score}</Typography>
-              <Typography>Date: {new Date(attempt.attempt_date).toLocaleString()}</Typography>
+              <Typography>
+                Date: {new Date(attempt.attempt_date).toLocaleString()}
+              </Typography>
             </Box>
           ))}
         </DialogContent>
