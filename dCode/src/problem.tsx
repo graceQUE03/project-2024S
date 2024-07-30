@@ -12,6 +12,7 @@ const Problem: React.FC = () => {
   const [attempts, setAttempts] = useState<{ score: number; attempt_date: string }[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [problemTests, setProblemTests] = useState<any>(null);
+  const [problemCode, setProblemCode] = useState<string>("");
   const actualOutputs: any[] = [];
 
   useEffect(() => {
@@ -23,8 +24,9 @@ const Problem: React.FC = () => {
 
     const fetchProblems = async () => {
       try {
-        const fetchedProblemTests = await axios.get(`http://localhost:3000/api/problems/${id}`);
-        setProblemTests(fetchedProblemTests.data[0].tests);
+        const fetchedProblems = await axios.get(`http://localhost:3000/api/problems/${id}`);
+        setProblemTests(fetchedProblems.data[0].tests);
+        setProblemCode(fetchedProblems.data[0].code);  
       } catch (error) {
         console.error("Error fetching problems: ", error);
       }
@@ -160,7 +162,12 @@ const Problem: React.FC = () => {
   }
   return (
     <div className="App">
-      <Typography variant="h4">OpenAI JavaScript Code</Typography>
+      {problemCode && (
+        <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
+          {problemCode}
+        </Box>
+      )}
+      <Typography variant="h4">OpenAI JavaScript Code Test</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           multiline
