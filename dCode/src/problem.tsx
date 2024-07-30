@@ -42,18 +42,25 @@ const Problem: React.FC = () => {
 
       // trim the generated code from the response
       let trimmedCode = response.data.generatedCode;
-      let code = trimmedCode.split("```javascript");
-      code = code[1].split("```");
 
-      setGeneratedCode(code[0]);
+      if (trimmedCode === "exception 1") {
+        setGeneratedCode("Your description is a javascript code. Please describe the problem in plain English.")
+        setResult("");
+      } else if (trimmedCode === "exception 2") {
+        setGeneratedCode("Your description is not a valid sentence. Please describe the problem in plain English.");
+        setResult("");
+      } else {
+        let code = trimmedCode.split("```javascript");
+        code = code[1].split("```");
+  
+        setGeneratedCode(code[0]);
 
-      console.log(code[0]);
-
-      const response2 = await axios.post('http://localhost:3000/api/test-generated-code', {generatedCode:  code[0], id: id});
-      
-      console.log(code[0]);
-
-      setResult(response2.data);
+        const response2 = await axios.post('http://localhost:3000/api/test-generated-code', {generatedCode:  code[0], id: id});
+        
+        console.log(code[0]);
+  
+        setResult(response2.data);
+      }
     } catch (error) {
       setGeneratedCode('Error: ' + (error as Error).message);
     }
@@ -121,9 +128,18 @@ const Problem: React.FC = () => {
     const testNumber = `test${testCase}`;
     const description = problemTests[testNumber].description;
     const expectedOutput = problemTests[testNumber].output;
-    const passed = actualOutputs[testIndex] === expectedOutput ? "Yes" : "No";
+    let actualOutput;
+    // special case: round the decimal numbers to the decimal place as the expected output
+    if (typeof(expectedOutput) === 'number' && !Number.isInteger(expectedOutput)) {
+      const decimal = expectedOutput.toString().split(".");
+      const digitNum = decimal[1].length;
+      actualOutput = Number(actualOutputs[testIndex].toFixed(digitNum));
+    } else {
+      actualOutput = actualOutputs[testIndex];
+    }
+    const passed = actualOutput === expectedOutput ? "Yes" : "No";
 
-    const text = `Test Case ${testCase} \n  Description: ${description} \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutputs[testIndex]} \n Passed: ${passed} \n \n`;
+    const text = `Test Case ${testCase} \n  Description: ${description} \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Passed: ${passed} \n \n`;
     return (
       <Typography variant="h6" style={{ whiteSpace: 'pre-line' }}>
         {text}

@@ -39,6 +39,18 @@ VALUES('Factorial', 'Recursive function to calculate factorial', 'function fac(n
     "test5": {"description": "factorial of 10", "input": [10], "output": 3628800}
   }');
 
+  INSERT INTO problems (name, description, code, difficulty, tests)
+VALUES('Addition', 'Simple addition of two numbers', 'function(a, b + c) {
+return a + b + c;
+}', 'easy', 
+'{
+    "test1": {"description": "adding three positive numbers", "input": [2, 3, 5], "output": 10}, 
+    "test2": {"description": "adding zero and two positive numbers", "input": [0, 3, 7], "output": 10},
+    "test3": {"description": "adding two negative numbers and a positive number", "input": [-7, -9, 2], "output": -14}, 
+    "test4": {"description": "adding two positive numbers and a negative number", "input": [6, 14, -2], "output": 18},
+    "test5": {"description": "adding three decimal numbers", "input": [4.5, 2.3, 0.1], "output": 6.9}
+  }');
+
 CREATE TABLE IF NOT EXISTS user_problem_attempts (
     attempt_id SERIAL PRIMARY KEY,
     auth0_user_id VARCHAR(255) NOT NULL,

@@ -155,7 +155,17 @@ const callOpenAI = async (prompt) => {
           {
             role: "system",
             content:
-              "Act like a javascript code generator. You will be provided with plain english sentence, and your task is to generate a piece of javascript code with function name foo.",
+              `Act like a javascript code generator. 
+              You will be provided with plain english sentence, 
+              and your task is to generate a piece of javascript code with function name foo. 
+              Check the following exceptions: 
+              If the user input is a javascript code, then return "exception 1".
+              Example: Me: "function foo(a, b) { return a + b; }", You: "exception 1".
+              Example: Me: "What does it do? function foo(a, b) { return a + b; }", You: "exception 1".
+              If the user input is unrelated to describing a code, then return "exception 2".
+              Example: Me: "aaa", You: "exception 2".
+              Example: Me: "Hi." You: "exception 2".
+              Example: Me: "" You: "exception 2".`,
           },
           {
             role: "user",
@@ -216,26 +226,13 @@ app.post("/api/test-generated-code", async (req, res) => {
 
     // (3) run the generated function with stored input
     const outputs = [];
-    const output1 = foo(
-      fetchedTests.test1.input[0],
-      fetchedTests.test1.input[1]
-    );
-    const output2 = foo(
-      fetchedTests.test2.input[0],
-      fetchedTests.test2.input[1]
-    );
-    const output3 = foo(
-      fetchedTests.test3.input[0],
-      fetchedTests.test3.input[1]
-    );
-    const output4 = foo(
-      fetchedTests.test4.input[0],
-      fetchedTests.test4.input[1]
-    );
-    const output5 = foo(
-      fetchedTests.test5.input[0],
-      fetchedTests.test5.input[1]
-    );
+
+    const output1 = foo(...fetchedTests.test1.input);
+    const output2 = foo(...fetchedTests.test2.input);
+    const output3 = foo(...fetchedTests.test3.input);
+    const output4 = foo(...fetchedTests.test4.input);
+    const output5 = foo(...fetchedTests.test5.input);
+
     outputs.push(output1, output2, output3, output4, output5);
 
     const result = {
