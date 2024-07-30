@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextField, Typography, Box, Grid } from "@mui/material";
+import { Button, TextField, Typography, Box, Grid, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
 import axios from 'axios';
-import './App.css';
+import CloseIcon from '@mui/icons-material/Close';
 import { useParams } from 'react-router-dom';
+import './App.css';
 
 const Problem: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +14,8 @@ const Problem: React.FC = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [problemTests, setProblemTests] = useState<any>(null);
   const [problemCode, setProblemCode] = useState<string>("");
+  const [showResults, setShowResults] = useState(false);
+  const [score, setScore] = useState<number>(0);
   const actualOutputs: any[] = [];
 
   useEffect(() => {
@@ -42,30 +45,27 @@ const Problem: React.FC = () => {
         prompt
       });
 
-      // trim the generated code from the response
       let trimmedCode = response.data.generatedCode;
       let code = trimmedCode.split("```javascript");
       code = code[1].split("```");
 
       setGeneratedCode(code[0]);
 
-      console.log(code[0]);
-
-      const response2 = await axios.post('http://localhost:3000/api/test-generated-code', {generatedCode:  code[0], id: id});
-      
-      console.log(code[0]);
-
+      const response2 = await axios.post('http://localhost:3000/api/test-generated-code', {generatedCode: code[0], id: id});
       setResult(response2.data);
-    } catch (error) {
-      setGeneratedCode('Error: ' + (error as Error).message);
-    }
-  };
 
-  const handleMarkComplete = async () => {
-    console.log("getting here");
+      // Calculate score
+      const obj = response2.data;
+      const totalTests = Object.keys(problemTests).length;
+      let passedTests = 0;
+      for (let i = 1; i <= totalTests; i++) {
+        if (obj.result[`actualOutput${i}`] === problemTests[`test${i}`].output) {
+          passedTests++;
+        }
+      }
+      const calculatedScore = Math.round((passedTests / totalTests) * 100);
+      setScore(calculatedScore);
 
-    try {
-      // Fetch the user ID from the API
       const userResponse = await axios.get('http://localhost:3000/api/user');
       const auth0_user_id = userResponse.data;
 
@@ -74,22 +74,24 @@ const Problem: React.FC = () => {
         return;
       }
 
-      // Make the request to mark the problem as complete
       await axios.post('http://localhost:3000/api/problem-complete', {
         auth0_user_id: String(auth0_user_id),
-        problem_id: parseInt(id, 10)
+        problem_id: parseInt(id, 10),
+        score: calculatedScore
       });
 
       alert("Problem marked as complete!");
+
+      setShowResults(true);
+
     } catch (error) {
-      console.error("Error marking problem as complete:", error);
+      setGeneratedCode('Error: ' + (error as Error).message);
       alert("There was an error marking the problem as complete.");
     }
   };
 
   const handleViewHistory = async () => {
     try {
-      // Fetch the user ID from the API
       const userResponse = await axios.get('http://localhost:3000/api/user');
       const auth0_user_id = userResponse.data;
 
@@ -98,15 +100,17 @@ const Problem: React.FC = () => {
         return;
       }
 
-      // Make the request to fetch the user's problem attempts
       const attemptsResponse = await axios.get(`http://localhost:3000/api/user-problem-attempts/${auth0_user_id}/${id}`);
-
       setAttempts(attemptsResponse.data);
       setShowHistory(true);
     } catch (error) {
       console.error("Error fetching problem attempts:", error);
       alert("There was an error fetching the problem attempts.");
     }
+  };
+
+  const handleCloseHistory = () => {
+    setShowHistory(false);
   };
 
   const getStatusColor = (score: number) => {
@@ -117,7 +121,6 @@ const Problem: React.FC = () => {
     return score === 100 ? 'PASS' : 'FAILED';
   };
 
-  // display each test case tesult
   const testResult = (testCase: number) => {
     const testIndex = testCase - 1;
     const testNumber = `test${testCase}`;
@@ -133,7 +136,6 @@ const Problem: React.FC = () => {
     )
   }
 
-  // display all 5 test results including description, expected output and actual output
   const displayResult = () => {
     if (result === "") {
       return result;
@@ -151,7 +153,7 @@ const Problem: React.FC = () => {
     )
 
     return (
-      <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
+      <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
         {testResult(1)}
         {testResult(2)}
         {testResult(3)}
@@ -160,14 +162,29 @@ const Problem: React.FC = () => {
       </Box>
     )
   }
+
   return (
     <div className="App">
       {problemCode && (
-        <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
+        <Box
+          component="pre"
+          bgcolor="white"
+          p={4}
+          mt={10}
+          borderRadius={4}
+          sx={{
+            color: 'black',
+            boxShadow: 3,
+            fontFamily: 'monospace',
+            fontSize: '1rem',
+            whiteSpace: 'pre-wrap',
+            wordWrap: 'break-word',
+          }}
+        >
           {problemCode}
         </Box>
       )}
-      <Typography variant="h4">OpenAI JavaScript Code Test</Typography>
+      <Typography variant="h4" mt={4}>OpenAI JavaScript Code</Typography>
       <form onSubmit={handleSubmit}>
         <TextField
           multiline
@@ -178,38 +195,45 @@ const Problem: React.FC = () => {
           fullWidth
           margin="normal"
         />
-        <Button type="submit" variant="contained" color="primary">
-          Generate Code
-        </Button>
+        <Grid container spacing={2} justifyContent="center" mt={4}>
+          <Grid item>
+            <Button type="submit" variant="contained" color="primary">
+              Submit
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="warning" onClick={handleViewHistory}>
+              View History
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="secondary">
+              Save
+            </Button>
+          </Grid>
+        </Grid>
       </form>
-      <Typography variant="h4">Generated JavaScript Code </Typography>
-      <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
-        {generatedCode}
-      </Box>
-      <Typography variant="h4">Test Case Results </Typography>
-      <Box component="pre" bgcolor="black" p={2} mt={2} borderRadius={4}>
-      {displayResult()}
-      </Box>
-      <Grid container spacing={2} justifyContent="center" mt={4}>
-        <Grid item>
-          <Button variant="contained" color="warning" onClick={handleViewHistory}>
-            View History
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" color="secondary">
-            Save
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" color="primary" onClick={handleMarkComplete}>
-            Submit
-          </Button>
-        </Grid>
-      </Grid>
-      {showHistory && (
-        <Box mt={4}>
-          <Typography variant="h5">Previous Attempts:</Typography>
+      {showResults && (
+        <>
+          <Typography variant="h4" mt={4}>Score: {score}</Typography>
+          <Typography variant="h4" mt={4}>Generated JavaScript Code</Typography>
+          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+            {generatedCode}
+          </Box>
+          <Typography variant="h4" mt={4}>Test Case Results</Typography>
+          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+            {displayResult()}
+          </Box>
+        </>
+      )}
+      <Dialog open={showHistory} onClose={handleCloseHistory} maxWidth="md" fullWidth>
+        <DialogTitle>
+          Previous Attempts
+          <IconButton aria-label="close" onClick={handleCloseHistory} style={{ position: 'absolute', right: 8, top: 8 }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
           {attempts.map((attempt, index) => (
             <Box key={index} p={2} border={1} borderColor="grey.300" borderRadius={4} mt={2}>
               <Typography>
@@ -219,8 +243,13 @@ const Problem: React.FC = () => {
               <Typography>Date: {new Date(attempt.attempt_date).toLocaleString()}</Typography>
             </Box>
           ))}
-        </Box>
-      )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseHistory} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

@@ -254,9 +254,8 @@ app.post("/api/test-generated-code", async (req, res) => {
 });
 
 app.post("/api/problem-complete", requiresAuth(), (req, res) => {
-  const { auth0_user_id, problem_id } = req.body;
+  const { auth0_user_id, problem_id, score } = req.body;
   const status = "complete";
-  const score = 50;
 
   pg("user_problem_attempts")
     .insert({
