@@ -51,6 +51,50 @@ return a + b + c;
     "test5": {"description": "adding three decimal numbers", "input": [4.5, 2.3, 0.1], "output": 6.9}
   }');
 
+
+INSERT INTO problems (name, description, code, difficulty, tests)
+VALUES ('Reverse String', 'Function to reverse a given string without using built-in methods', 
+'function foo(str) {
+  let reversed = "";
+  for (let i = str.length - 1; i >= 0; i--) {
+    reversed += str[i];
+  }
+  return reversed;
+}', 'easy', 
+'{
+  "test1": {"description": "reverse a single word", "input": ["hello"], "output": "olleh"}, 
+  "test2": {"description": "reverse a sentence", "input": ["hello world"], "output": "dlrow olleh"},
+  "test3": {"description": "reverse a palindrome", "input": ["madam"], "output": "madam"}, 
+  "test4": {"description": "reverse an empty string", "input": [""], "output": ""},
+  "test5": {"description": "reverse a string with spaces", "input": [" a b "], "output": " b a "}
+}');
+
+INSERT INTO problems (name, description, code, difficulty, tests)
+VALUES('Longest Substring Without Repeating Characters', 
+'Write a function foo that takes a string as input and returns the length of the longest substring without repeating characters.', 
+'function foo(s) {
+    let n = s.length;
+    let ans = 0;
+    let map = new Map();
+    for (let j = 0, i = 0; j < n; j++) {
+        if (map.has(s[j])) {
+            i = Math.max(map.get(s[j]) + 1, i);
+        }
+        ans = Math.max(ans, j - i + 1);
+        map.set(s[j], j);
+    }
+    return ans;
+}', 
+'hard', 
+'{
+    "test1": {"description": "finding the longest substring in a string with all unique characters", "input": ["abcdef"], "output": 6}, 
+    "test2": {"description": "finding the longest substring in a string with repeated characters", "input": ["abcabcbb"], "output": 3},
+    "test3": {"description": "finding the longest substring in a string with a mix of unique and repeated characters", "input": ["pwwkew"], "output": 3}, 
+    "test4": {"description": "finding the longest substring in an empty string", "input": [""], "output": 0},
+    "test5": {"description": "finding the longest substring in a string with all characters being the same", "input": ["bbbbb"], "output": 1}
+}');
+
+
 CREATE TABLE IF NOT EXISTS user_problem_attempts (
     attempt_id SERIAL PRIMARY KEY,
     auth0_user_id VARCHAR(255) NOT NULL,
