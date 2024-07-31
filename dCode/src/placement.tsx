@@ -1,115 +1,94 @@
 // placement.tsx
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { useNavigate } from 'react-router-dom'; 
-import "./App.css";
-import React, { useState, useEffect } from "react";
+import {useNavigate} from 'react-router-dom'; 
+import React, { useState } from "react";
 import axios from "axios";
+import "./App.css";
 
 // display problem number, problem statement and type box for description
-function displayProblemBox(number: number, problem: string) {
-  return (
-    <>
-    <Box
-        sx={{
-          gap: 2,
-          display: "flex",
-          alignItems: "center",
-          height: "35vh",
-          flexDirection: "row",
-        }}
-      >
-        <Box
-          sx={{
-            width: 25,
-            height: 25,
-            bgcolor: "primary.main",
-            color: "white",
-            borderRadius: "4px",
-          }}
-        >
-          <Typography variant="body1">{number}</Typography>
-        </Box>
+// function displayProblemBox(number: number, problem: string) {
+//   return (
+//     <>
+//     <Box
+//         sx={{
+//           gap: 2,
+//           display: "flex",
+//           alignItems: "center",
+//           height: "35vh",
+//           flexDirection: "row",
+//         }}
+//       >
+//         <Box
+//           sx={{
+//             width: 25,
+//             height: 25,
+//             bgcolor: "primary.main",
+//             color: "white",
+//             borderRadius: "4px",
+//           }}
+//         >
+//           <Typography variant="body1">{number}</Typography>
+//         </Box>
 
-        <Box
-          height={200}
-          width={500}
-          my={4}
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems = "center"
-          p={2}
-          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
-        >
-          <Box>
-          <pre style={{
-            fontSize: '18px', 
-            width: '100%', 
-            whiteSpace: 'pre-wrap'
-            }}>{problem}</pre>
-          </Box>
+//         <Box
+//           height={200}
+//           width={500}
+//           my={4}
+//           display="flex"
+//           flexDirection="row"
+//           justifyContent="center"
+//           p={2}
+//           sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
+//         >
+//           <pre>{problem}</pre>
+//         </Box>
+//       </Box>
+//       <Box
+//         sx={{
+//           width : 600,
+//           mt: 15,
+//         }}
+//       >
+//         <TextField
+//           fullWidth
+//           id="description"
+//           label="Type your function description in plain English below"
+//           multiline
+//           minRows={4}
+//           maxRows={10}
+//         />
+//       </Box>
+//     </>
+//   );
+// };
 
-        </Box>
-      </Box>
-      <Box
-        sx={{
-          width : 600,
-          mt: 15,
-        }}
-      >
-        <TextField
-          fullWidth
-          id="description"
-          label="Type your function description in plain English below"
-          multiline
-          minRows={4}
-          maxRows={10}
-          InputProps={{
-            sx: {
-              color: '#ffffff',
-            },
-          }}
-          InputLabelProps={{
-            sx: {
-              color:'#c0c0f2',
-            },
-          }}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': {
-                borderColor: '#c0c0f2',
-              },
-            '&:hover fieldset': {
-            borderColor: '#6c68fb', 
-          }}
-            }}
-        />
-      </Box>
-    </>
-  );
-};
-
-const Placement: React.FC = () =>{
-  // for now fixed problem numbers
+const Placement: React.FC = () => {
   const [problemEasy, setProblemEasy] = useState<string>("");
   const [problemMedium, setProblemMedium] = useState<string>("");
   const [problemHard, setProblemHard] = useState<string>("");
 
-  useEffect(() => {
+  const [promptEasy, setPromptEasy] = useState("");
+  const [promptMedium, setPromptMedium] = useState("");
+  const [promptHard, setPromptHard] = useState("");
+
+  const [testsEasy, setTestsEasy] = useState<string>("");
+  const [testsMedium, setTestsMedium] = useState<string>("");
+  const [testsHard, setTestsHard] = useState<string>("");
+
+  React.useEffect(() => {
     const fetchProblems = async (id: number) => {
       try {
-        const fetchedProblems = await axios.get(
-          `http://localhost:3000/api/problems/${id}`
-        );
-        //easy; medium; hard
+        const fetchedProblems = await axios.get(`http://localhost:3000/api/problems/${id}`);
         if (id === 1) {
           setProblemEasy(fetchedProblems.data[0].code);
+          setTestsEasy(fetchedProblems.data[0].tests);
         } else if (id === 2) {
           setProblemMedium(fetchedProblems.data[0].code);
+          setTestsMedium(fetchedProblems.data[0].tests);
         } else {
           setProblemHard(fetchedProblems.data[0].code);
+          setTestsHard(fetchedProblems.data[0].tests);
         }
-
       } catch (error) {
         console.error("Error fetching problems: ", error);
       }
@@ -122,8 +101,9 @@ const Placement: React.FC = () =>{
 
   const navigate = useNavigate();  
 
-  const handleResult = () => {
-    navigate('/dcode/result');  
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    navigate('/dcode/result', {state : { promptEasy, promptMedium, promptHard, testsEasy, testsMedium, testsHard}});  
   };
 
   return (
@@ -142,19 +122,202 @@ const Placement: React.FC = () =>{
         Placement Test
       </Typography>
 
-      {/* Problems */}
-      {displayProblemBox(1, problemEasy)}
-      {displayProblemBox(2, problemMedium)}
-      {displayProblemBox(3, problemHard)}
+      <form onSubmit = {handleSubmit}>
+      {/* Problem 1 */}
+      <Box
+        sx={{
+          gap: 2,
+          display: "flex",
+          alignItems: "center",
+          height: "35vh",
+          flexDirection: "row",
+        }}
+      >
+        <Box
+          sx={{
+            width: 25,
+            height: 25,
+            bgcolor: "primary.main",
+            color: "white",
+            borderRadius: "4px",
+          }}
+        >
+          <Typography variant="body1">{1}</Typography>
+        </Box>
+
+        <Box
+          height={200}
+          width={500}
+          my={4}
+          display="flex"
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="center"
+          p={2}
+          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
+        >
+          <Box>
+              <pre
+                style={{
+                  fontSize: "18px",
+                  width: "100%",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {problemEasy}
+              </pre>
+            </Box>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          width : 600,
+          mt: 15,
+        }}
+      >
+        <TextField
+          fullWidth
+          id="description"
+          label="Type your function description in plain English below"
+          multiline
+          minRows={4}
+          maxRows={10}
+          onChange = {(e) => setPromptEasy(e.target.value)}
+        />
+      </Box>
+      {/* Problem 2 */}
+      <Box
+        sx={{
+          gap: 2,
+          display: "flex",
+          alignItems: "center",
+          height: "35vh",
+          flexDirection: "row",
+        }}
+      >
+        <Box
+          sx={{
+            width: 25,
+            height: 25,
+            bgcolor: "primary.main",
+            color: "white",
+            borderRadius: "4px",
+          }}
+        >
+          <Typography variant="body1">{2}</Typography>
+        </Box>
+
+        <Box
+          height={200}
+          width={500}
+          my={4}
+          display="flex"
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="center"
+          p={2}
+          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
+        >
+          <Box>
+              <pre
+                style={{
+                  fontSize: "18px",
+                  width: "100%",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {problemMedium}
+              </pre>
+            </Box>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          width : 600,
+          mt: 15,
+        }}
+      >
+        <TextField
+          fullWidth
+          id="description"
+          label="Type your function description in plain English below"
+          multiline
+          minRows={4}
+          maxRows={10}
+          onChange = {(e) => setPromptMedium(e.target.value)}
+        />
+      </Box>
+      {/* Problem 3 */}
+      <Box
+        sx={{
+          gap: 2,
+          display: "flex",
+          alignItems: "center",
+          height: "35vh",
+          flexDirection: "row",
+        }}
+      >
+        <Box
+          sx={{
+            width: 25,
+            height: 25,
+            bgcolor: "primary.main",
+            color: "white",
+            borderRadius: "4px",
+          }}
+        >
+          <Typography variant="body1">{3}</Typography>
+        </Box>
+
+        <Box
+          height={200}
+          width={500}
+          my={4}
+          display="flex"
+          flexDirection="row"
+          justifyContent="center"
+          alignItems="center"
+          p={2}
+          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
+        >
+          <Box>
+              <pre
+                style={{
+                  fontSize: "18px",
+                  width: "100%",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                {problemHard}
+              </pre>
+            </Box>
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          width : 600,
+          mt: 15,
+        }}
+      >
+        <TextField
+          fullWidth
+          id="description"
+          label="Type your function description in plain English below"
+          multiline
+          minRows={4}
+          maxRows={10}
+          onChange = {(e) => setPromptHard(e.target.value)}
+        />
+      </Box>
 
       {/* Submit Button */}
       <Button 
-      type="button" 
+      type="submit" 
       variant="contained" 
-      sx={{ mt: 7, mb: 2}} 
-      onClick={handleResult}>
+      sx={{ mt: 7, mb: 2}}>
         End Test and Submit
       </Button>
+      </form>
     </div>
   );
 }

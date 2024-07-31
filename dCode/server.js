@@ -154,10 +154,9 @@ const callOpenAI = async (prompt) => {
         messages: [
           {
             role: "system",
-            content:
-              `Act like a javascript code generator. 
+            content: `Act like a javascript code generator. 
               You will be provided with plain english sentence, 
-              and your task is to generate a piece of javascript code with function name foo. 
+              and your task is to generate a piece of javascript code with function name foo.
               Check the following exceptions: 
               If the user input is a javascript code, then return "exception 1".
               Example: Me: "function foo(a, b) { return a + b; }", You: "exception 1".
@@ -198,7 +197,7 @@ app.get("/api/user", (req, res) => {
 });
 
 app.post("/api/openai-test", async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt} = req.body;
   try {
     // call OpenAI and get generated code
     const generatedCode = await callOpenAI(prompt);

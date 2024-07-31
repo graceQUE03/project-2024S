@@ -16,8 +16,9 @@ CREATE TABLE IF NOT EXISTS problems (
 -- mock problem data for now 
 
 INSERT INTO problems (name, description, code, difficulty, tests)
-VALUES('Addition', 'Simple addition of two numbers', 'function(a, b) {
-return a + b;
+VALUES('Addition', 'Simple addition of two numbers', 
+'function foo(a, b) {
+  return a + b;
 }', 'easy', 
 '{
     "test1": {"description": "adding two positive numbers", "input": [2, 3], "output": 5}, 
@@ -41,15 +42,15 @@ VALUES('Factorial', 'Recursive function to calculate factorial', 'function foo(n
 
   INSERT INTO problems (name, description, code, difficulty, tests)
 VALUES('Sentence and Words', 'Reverse the characters of each word in a given sentence while maintaining the word order', 
-'function reverseWords(sentence) {
+'function foo(sentence) {
   return sentence.split(" ").map(word => word.split("").reverse().join("")).join(" ");
 }', 'hard', 
 '{
     "test1": {"description": "hello world", "input": ["hello world"], "output": "olleh dlrow"}, 
-    "test2": {"description": "a b c", "input": ["a b c"], "output": "c b a"},
+    "test2": {"description": "a b c", "input": ["a b c"], "output": "a b c"},
     "test3": {"description": "aaa", "input": ["aaa"], "output": "aaa"}, 
     "test4": {"description": "an empty string", "input": [""], "output": ""},
-    "test5": {"description": "I am using dcode!", "input": ["I am using dcode!"], "output": "!edocd gnisu ma I"}
+    "test5": {"description": "I am using dcode!", "input": ["I am using dcode!"], "output": "I ma gnisu !edocd"}
   }');
 
 

@@ -1,9 +1,10 @@
 // result.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AppBar, Button, Box, Tab, Tabs, Typography } from "@mui/material";
 import { AiOutlineReload } from "react-icons/ai";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import LinearProgress from "@mui/material/LinearProgress";
+import axios from "axios";
 import "./App.css";
 
 interface TabPanelProps {
@@ -12,6 +13,13 @@ interface TabPanelProps {
   index: number;
   value: number;
 }
+
+
+  // actual outputs array
+  const actualOutputsArray: any[][] = [[], [], []];
+  // pass/fail numbers array
+  const passArray: boolean[][] = [[], [], []];
+
 
 function tag(color: string, difficulty: string) {
   return (
@@ -53,10 +61,17 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
-function displayTabPanel(value: number, index: number, problem: string, passTests: number, totalTests: number) {
-  var passMessage = passTests === totalTests ? "ALL TEST CASES PASSED" : "TEST CASES FAILED";
+function displayTabPanel(
+  value: number,
+  index: number,
+  problem: string,
+  totalTests: number
+) {
+  const passTests = passArray[index].filter(Boolean).length;
+  var passMessage =
+    passTests === totalTests ? "ALL TEST CASES PASSED" : "TEST CASES FAILED";
   var color = passTests === totalTests ? "green" : "red";
-  
+
   return (
     <>
       <TabPanel value={value} index={index}>
@@ -87,52 +102,228 @@ function displayTabPanel(value: number, index: number, problem: string, passTest
           <Typography variant="h5">AI-Generated Code</Typography>
 
           <Box
-            height={200}
-            width={550}
-            my={4}
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            p={2}
-            sx={{ textAlign: "left", border: "4px solid #646cffaa" }}
+            width="100%"
+            component="pre"
+            bgcolor="black"
+            p={4}
+            mt={4}
+            mb={4}
+            borderRadius={4}
+            sx={{
+              color: "white",
+              boxShadow: 3,
+              fontFamily: "monospace",
+              fontSize: "1rem",
+              whiteSpace: "pre-wrap",
+              wordWrap: "break-word",
+            }}
           >
-            <pre>{problem}</pre>
+            {problem}
           </Box>
 
-          <Typography variant="h6">Test Cases Passed {passTests}/{totalTests} </Typography>
+          <Typography variant="h6">
+            Test Cases Passed {passTests}/{totalTests}{" "}
+          </Typography>
         </Box>
 
-        
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          mt: 2,
-        }}
-      >
-        <LinearProgress
-          color="success"
-          variant="determinate"
-          value={(passTests / totalTests) * 100}
-          style={{ width: 350, height: 10, backgroundColor: "red" }}
-        />
-      </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            mt: 2,
+          }}
+        >
+          <LinearProgress
+            color="success"
+            variant="determinate"
+            value={(passTests / totalTests) * 100}
+            style={{ width: 350, height: 10, backgroundColor: "red" }}
+          />
+        </Box>
       </TabPanel>
     </>
   );
 }
 
-function Result() {
-  const passArray = [3 , 5, 10];
-  const totalTests = 10;
+const Result = () => {
+  const location = useLocation();
+  const { promptEasy, promptMedium, promptHard, testsEasy, testsMedium, testsHard} = location.state || {};
+  // !!! set properly
+  const [generatedCodeEasy, setGeneratedCodeEasy] = useState("");
+  const [generatedCodeMedium, setGeneratedCodeMedium] = useState("");
+  const [generatedCodeHard, setGeneratedCodeHard] = useState("");
+
+  const [resultsEasy, setResultsEasy] = useState<string>("");
+  const [resultsMedium, setResultsMedium] = useState<string>("");
+  const [resultsHard, setResultsHard] = useState<string>("");
+
+  const [showTestCases, setShowTestCases] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(false);
+
+  const totalTests = 5;
+
   const navigate = useNavigate();
 
   const handlePlacement = () => {
     navigate("/dcode/placement");
   };
 
+  const handleButton = (event: any) => {
+    event.preventDefault();
+    setShowTestCases(true);
+  };
+
+  const exception1 =
+    "Your description is a javascript code. Please describe the problem in plain English.";
+  const exception2 =
+    "Your description is not a valid sentence. Please describe the problem in plain English.";
+
   const [value, setValue] = React.useState(0);
+
+  useEffect(() => {
+    // (3) push all the actualoutputs and calcualte pass tests
+    const evalPass = async (tests: any, results: string, index: number) => {
+      if (results === "") {
+        // no test cases are passed
+        passArray[index].push(false, false, false, false, false);
+        return;
+      }
+
+      const text = JSON.stringify(results, null, 2);
+      const obj = JSON.parse(text);
+
+      for (let i = 1; i <= 5; i++) {
+        const expectedOutput = tests[`test${i}`].output;
+        const actualOutput = obj.result[`actualOutput${i}`];
+        console.log("this is the actualoutput: " + actualOutput);
+        console.log("this is the expectedOutput: " + expectedOutput);
+        if (
+          typeof expectedOutput === "number" &&
+          !Number.isInteger(expectedOutput)
+        ) {
+          const digitNum = expectedOutput.toString().split(".")[1].length;
+          actualOutputsArray[index].push(
+            Number(actualOutput).toFixed(digitNum)
+          );
+          passArray[index].push(actualOutput === expectedOutput);
+        } else {
+          actualOutputsArray[index].push(actualOutput);
+          passArray[index].push(actualOutput === expectedOutput);
+        }
+      }
+    };
+
+    // (1) fetch all generated codes
+    const fetchGeneratedCode = async (code: string) => {
+      try {
+        if (code === "easy") {
+          const responseEasy = await axios.post(
+            "http://localhost:3000/api/openai-test",
+            { prompt: promptEasy }
+          );
+          const generated = responseEasy.data.generatedCode;
+          if (generated === "exception 1") {
+            setGeneratedCodeEasy(exception1);
+            return;
+          } else if (generated === "exception 2") {
+            setGeneratedCodeEasy(exception2);
+            return;
+          } else {
+            let trimmed = generated.split("```javascript");
+            trimmed = trimmed[1].split("```");
+            console.log(trimmed[0]);
+            setGeneratedCodeEasy(trimmed[0]);
+
+            const response = await axios.post(
+              "http://localhost:3000/api/test-generated-code",
+              { generatedCode: trimmed[0], id: 1 }
+            );
+
+            console.log("easy: ")
+            console.log(JSON.stringify(resultsEasy, null, 2));
+
+            setResultsEasy(response.data);
+
+            evalPass(testsEasy, response.data, 0);
+          }
+        }
+        if (code === "medium") {
+          const responseMedium = await axios.post(
+            "http://localhost:3000/api/openai-test",
+            { prompt: promptMedium }
+          );
+          const generated = responseMedium.data.generatedCode;
+          if (generated === "exception 1") {
+            setGeneratedCodeMedium(exception1);
+            return;
+          } else if (generated === "exception 2") {
+            setGeneratedCodeMedium(exception2);
+            return;
+          } else {
+            let trimmed = generated.split("```javascript");
+            trimmed = trimmed[1].split("```");
+            console.log(trimmed[0]);
+            setGeneratedCodeMedium(trimmed[0]);
+
+            const response = await axios.post(
+              "http://localhost:3000/api/test-generated-code",
+              { generatedCode: trimmed[0], id: 2 }
+            );
+            console.log("medium: ")
+            console.log(JSON.stringify(resultsMedium, null, 2));
+
+            setResultsMedium(response.data);
+            evalPass(testsMedium, response.data, 1);
+          }
+        }
+        if (code === "hard") {
+          const responseHard = await axios.post(
+            "http://localhost:3000/api/openai-test",
+            { prompt: promptHard }
+          );
+          const generated = responseHard.data.generatedCode;
+          if (generated === "exception 1") {
+            setGeneratedCodeHard(exception1);
+            // !!!
+            setShowResults(true);
+            return;
+          } else if (generated === "exception 2") {
+            setGeneratedCodeHard(exception2);
+            // !!!
+            setShowResults(true);
+            return;
+          } else {
+            let trimmed = generated.split("```javascript");
+            trimmed = trimmed[1].split("```");
+            console.log(trimmed[0]);
+            setGeneratedCodeHard(trimmed[0]);
+
+            const response = await axios.post(
+              "http://localhost:3000/api/test-generated-code",
+              { generatedCode: trimmed[0], id: 3 }
+            );
+
+            console.log("hard: ")
+            console.log(JSON.stringify(resultsHard, null, 2));
+
+            setResultsHard(response.data);
+            console.log(resultsEasy, resultsMedium, resultsHard);
+
+            evalPass(testsHard, response.data, 2);
+            // !!!
+            setShowResults(true);
+          }
+        }
+      } catch (error: any) {
+        console.log("Error setting generated code : " + error.message);
+      }
+    };
+
+    fetchGeneratedCode("easy");
+    fetchGeneratedCode("medium");
+    fetchGeneratedCode("hard");
+  }, [promptEasy, promptMedium, promptHard, testsEasy, testsMedium, testsHard]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     // @ts-ignore
@@ -141,15 +332,6 @@ function Result() {
   };
 
   // displaying first problem without fetching from the database
-  const firstProblem = ` # Program to display the Fibonacci sequence
-  recurse_fibonacci <- function(n) {
-    if (n <= 1) {
-      return(n);
-    } else {
-      return(recurse_fibonacci(n-1) + recurse_fibonacci(n-2));
-    }
-  }`;
-
   return (
     <div className="App">
       {/* Header */}
@@ -185,7 +367,7 @@ function Result() {
           </Button>
         </Box>
 
-        <Typography style={{ width: 550, textAlign: "left", lineHeight: 2 }}>
+        {showResults && (<Typography style={{ width: 550, textAlign: "left", lineHeight: 2 }}>
           Based on your test results, we recommend you start practicing
           questions with the tag:
           <Box
@@ -199,13 +381,20 @@ function Result() {
               mb: 1,
             }}
           >
-          {passArray[0] === totalTests ? tag("#00b894", "EASY") : ""}
-          {passArray[1] === totalTests ? tag("#ffa500", "MEDIUM") : ""} 
-          {passArray[2] === totalTests ? tag("red", "HARD") : ""}
+            {passArray[0].filter(Boolean).length === totalTests
+              ? ""
+              : tag("#00b894", "EASY")}
+            {passArray[1].filter(Boolean).length === totalTests
+              ? ""
+              : tag("#ffa500", "MEDIUM")}
+            {passArray[2].filter(Boolean).length === totalTests
+              ? ""
+              : tag("red", "HARD")}
           </Box>
           <br />
           View individual feedback below.
         </Typography>
+  )}
       </Box>
 
       <Box
@@ -228,16 +417,34 @@ function Result() {
           </Tabs>
         </AppBar>
         {/* Problems */}
-        {displayTabPanel(value, 0, firstProblem, passArray[0], totalTests)}
-        {displayTabPanel(value, 1, firstProblem, passArray[1], totalTests)}
-        {displayTabPanel(value, 2, firstProblem, passArray[2], totalTests)}
+        {showResults && displayTabPanel(
+          value,
+          0,
+          generatedCodeEasy,
+          totalTests
+        )}
+        {showResults && displayTabPanel(
+          value,
+          1,
+          generatedCodeMedium,
+          totalTests
+        )}
+        {showResults && displayTabPanel(
+          value,
+          2,
+          generatedCodeHard,
+          totalTests
+        )}
       </Box>
 
-      <Button type="button" variant="contained" sx={{ mt: 3, mb: 2 }}>
-        View Test Cases
-      </Button>
+      <form onSubmit={handleButton}>
+        <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2 }}>
+          View Test Cases
+        </Button>
+      </form>
+      {showTestCases && <Typography> this is the results</Typography>}
     </div>
   );
-}
+};
 
 export default Result;
