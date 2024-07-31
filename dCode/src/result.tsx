@@ -101,7 +101,7 @@ function displayTabPanel(
             </Typography>
           </Box>
 
-          <Typography variant="h5" style={{ color: '#6c68fb' }}>AI-Generated Code</Typography>
+          <Typography variant="h5">AI-Generated Code</Typography>
 
           <Box
             width="100%"
@@ -123,7 +123,7 @@ function displayTabPanel(
             {problem}
           </Box>
 
-          <Typography variant="h6" style={{ color: '#6c68fb' }}>
+          <Typography variant="h6">
             Test Cases Passed {passTests}/{totalTests}{" "}
           </Typography>
         </Box>
@@ -408,7 +408,7 @@ const Result = () => {
                 </Box>
         )}
 
-        {showResults && (<Typography style={{ width: 550, textAlign: "left", lineHeight: 2, color: '#6c68fb'}}>
+        {showResults && (<Typography style={{ width: 550, textAlign: "left", lineHeight: 2,}}>
           Based on your test results, we recommend you start practicing
           questions with the tag:
           <Box

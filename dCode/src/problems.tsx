@@ -55,7 +55,7 @@ function MultipleSelectCheckmarks(
       <FormControl sx={{ m: 1, width: 200 }}>
         <InputLabel 
         id="demo-multiple-checkbox-label" 
-        sx={{color: '#c0c0f2'}}>{category}</InputLabel>
+        >{category}</InputLabel>
         <Select
           labelId="${category}-select-label"
           id="${category}-select"
@@ -93,7 +93,7 @@ function Problems() {
     []
   );
   const [problems, setProblems] = React.useState<any[]>([]);
-  const [showPlacement, setShowPlacement] = React.useState<boolean>(false);
+  const [showPlacement, setShowPlacement] = React.useState<boolean>(true);
 
   const handleStatusChange = (event: SelectChangeEvent<string[]>) => {
     const {

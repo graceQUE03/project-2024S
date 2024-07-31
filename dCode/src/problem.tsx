@@ -34,9 +34,9 @@ const Problem: React.FC = () => {
   const actualOutputs: any[] = [];
 
   const exception1 =
-    "Your description is a javascript code. Please describe the problem in plain English.";
+    "Your description is a javascript code. Please describe the code in plain English.";
   const exception2 =
-    "Your description is an invalid sentence. Please describe the problem in plain English.";
+    "Your description is an invalid sentence. Please describe the code in plain English.";
 
   useEffect(() => {
     if (!id) {
@@ -185,9 +185,9 @@ const Problem: React.FC = () => {
     }
     const passed = actualOutput === expectedOutput ? "Pass" : "Fail";
 
-    const text = `Test Case ${testCase} \n  Description: ${description} \n Inputs: [${problemTests[testNumber].input}] \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Result: ${passed} \n \n`;
+    const text = `Test Case ${testCase} \n  Description: ${description} \n Inputs: [${problemTests[testNumber].input}] \n Expected Output: ${expectedOutput} \n Actual Output: ${actualOutput} \n Result: ${passed} \n \n`;
     return (
-      <Typography variant="h6" style={{ whiteSpace: "pre-line" }}>
+      <Typography variant="h6" style={{ whiteSpace: "pre-line",  color: 'white' }}>
         {text}
       </Typography>
     );
@@ -251,7 +251,7 @@ const Problem: React.FC = () => {
           {problemCode}
         </Box>
       )}
-      <Typography variant="h5" mt={4} style={{ color: '#6c68fb' }}>
+      <Typography variant="h5" mt={4}>
         Describe the code above in plain English.
       </Typography>
       <form onSubmit={handleSubmit}>
@@ -273,7 +273,7 @@ const Problem: React.FC = () => {
           (generatedCode === exception1 || generatedCode === exception2) && (
             <>
               <Box bgcolor="black" p={4} mt={4} borderRadius={4}>
-                <Typography variant="h5">{generatedCode}</Typography>
+                <Typography variant="h5" style={{ color: 'white' }}>{generatedCode}</Typography>
               </Box>
             </>
           )}
@@ -329,13 +329,13 @@ const Problem: React.FC = () => {
               },
             }}
           />
-          <Typography variant="h4" mt={4} style={{ color: '#6c68fb' }} >
+          <Typography variant="h4" mt={4} style={{ color: 'black' }} >
             Generated JavaScript Code
           </Typography>
-          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4} style={{ color: 'white' }} >
             {generatedCode}
           </Box>
-          <Typography variant="h4" mt={4} style={{ color: '#6c68fb' }}>
+          <Typography variant="h4" mt={4} style={{ color: 'black' }}>
             Test Case Results
           </Typography>
           {displayResult()}

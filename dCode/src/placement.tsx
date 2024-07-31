@@ -181,6 +181,7 @@ const Placement: React.FC = () => {
                   fontSize: "18px",
                   width: "100%",
                   whiteSpace: "pre-wrap",
+                  color: 'white',
                 }}
               >
                 {problemEasy}
@@ -200,6 +201,11 @@ const Placement: React.FC = () => {
           multiline
           minRows={4}
           maxRows={10}
+          InputProps={{
+            style: {
+              color: "black",
+            },
+          }}
           onChange = {(e) => setPromptEasy(e.target.value)}
         />
       </Box>
@@ -232,6 +238,7 @@ const Placement: React.FC = () => {
                   fontSize: "18px",
                   width: "100%",
                   whiteSpace: "pre-wrap",
+                  color: 'white',
                 }}
               >
                 {problemMedium}
@@ -251,6 +258,11 @@ const Placement: React.FC = () => {
           multiline
           minRows={4}
           maxRows={10}
+          InputProps={{
+            style: {
+              color: "black",
+            },
+          }}
           onChange = {(e) => setPromptMedium(e.target.value)}
         />
       </Box>
@@ -285,6 +297,7 @@ const Placement: React.FC = () => {
                   fontSize: "18px",
                   width: "100%",
                   whiteSpace: "pre-wrap",
+                  color: 'white',
                 }}
               >
                 {problemHard}
@@ -304,6 +317,11 @@ const Placement: React.FC = () => {
           multiline
           minRows={4}
           maxRows={10}
+          InputProps={{
+            style: {
+              color: "black",
+            },
+          }}
           onChange = {(e) => setPromptHard(e.target.value)}
         />
       </Box>
