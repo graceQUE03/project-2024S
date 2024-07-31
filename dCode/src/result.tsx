@@ -151,7 +151,7 @@ function displayTabPanel(
 const Result = () => {
   const location = useLocation();
   const { promptEasy, promptMedium, promptHard, testsEasy, testsMedium, testsHard} = location.state || {};
-  // !!! set properly
+
   const [generatedCodeEasy, setGeneratedCodeEasy] = useState("");
   const [generatedCodeMedium, setGeneratedCodeMedium] = useState("");
   const [generatedCodeHard, setGeneratedCodeHard] = useState("");
@@ -337,6 +337,12 @@ const Result = () => {
     );
   };
 
+  const displayResultEmpty = () => {
+    return (
+      <Typography> There are no test cases for invalid input. </Typography>
+    )
+  }
+
   const displayResult = (index: number, tests : any) => {
     return (
       <Grid item>
@@ -478,9 +484,9 @@ const Result = () => {
         </Button>
       </form>
       {showTestCases && 
-      ((value === 0 && displayResult(0, testsEasy)) ||
-      (value === 1 && displayResult(1, testsMedium)) ||
-      (value === 2 && displayResult(2, testsHard)))}
+      ((value === 0 && (resultsEasy === "" ? displayResultEmpty() : displayResult(0, testsEasy))) ||
+      (value === 1 && (resultsMedium === "" ? displayResultEmpty() : displayResult(1, testsMedium))) ||
+      (value === 2 && (resultsHard === "" ? displayResultEmpty() : displayResult(2, testsHard))))}
     </div>
   );
 };

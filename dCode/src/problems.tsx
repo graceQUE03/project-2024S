@@ -188,8 +188,7 @@ function Problems() {
           color: '#6c68fb',
         }}
       >
-        <Typography variant = "h4">Not sure where to begin? </Typography>
-        <Typography variant = "h4"> Take our placement test to find out!</Typography>
+        <Typography variant = "h4">Not sure where to begin? Take our placement test to find out!</Typography>
         </Box>
       )}
       <Box
