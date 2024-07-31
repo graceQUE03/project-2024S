@@ -331,7 +331,7 @@ const Result = () => {
 
     const text = `Test Case ${testCase} \n  Description: ${description} \n Inputs: [${tests[testNumber].input}] \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Result: ${passed} \n \n`;
     return (
-      <Typography variant="h6" style={{ whiteSpace: "pre-line" }}>
+      <Typography variant="h6" style={{ whiteSpace: "pre-line",  color: 'white' }}>
         {text}
       </Typography>
     );
