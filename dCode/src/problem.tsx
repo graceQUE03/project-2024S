@@ -66,7 +66,7 @@ const Problem: React.FC = () => {
       const response = await axios.post(
         "http://localhost:3000/api/openai-test",
         {
-          prompt,
+          prompt
         }
       );
 
@@ -94,8 +94,6 @@ const Problem: React.FC = () => {
         "http://localhost:3000/api/test-generated-code",
         { generatedCode: code[0], id: id }
       );
-
-      console.log(code[0]);
 
       setResult(response2.data);
 
