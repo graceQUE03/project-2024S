@@ -103,8 +103,25 @@ const Placement: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    try {
+      const userResponse = await axios.get("http://localhost:3000/api/user");
+      const auth0_user_id = userResponse.data;
+
+      if (!auth0_user_id) {
+        alert("User ID is missing.");
+        return;
+      }
+
+      await axios.post("http://localhost:3000/api/users/placement-complete", {
+        auth0_user_id: String(auth0_user_id),
+      });
+
+    } catch (error: any) {
+      console.error("Error handling submit: " + error);
+    }
     navigate("/dcode/result", {
       state: {
         promptEasy,

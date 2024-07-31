@@ -93,6 +93,7 @@ function Problems() {
     []
   );
   const [problems, setProblems] = React.useState<any[]>([]);
+  const [showPlacement, setShowPlacement] = React.useState<boolean>(false);
 
   const handleStatusChange = (event: SelectChangeEvent<string[]>) => {
     const {
@@ -119,6 +120,14 @@ function Problems() {
           console.error("User ID is missing");
           return;
         }
+
+        const placementResponse = await axios.post(
+          "http://localhost:3000/api/users/placement",
+        {auth0_user_id: user_id});
+
+        const placementResult = placementResponse.data.placement_test_taken;
+        console.log("placement:" +  placementResponse.data.placement_test_taken);
+        setShowPlacement(placementResult);
   
         // Fetch problems data from the API
         const response = await axios.get("http://localhost:3000/api/problems");
@@ -169,6 +178,20 @@ function Problems() {
         flexDirection: "column",
       }}
     >
+      {!showPlacement && (
+        <Box
+        sx={{
+          flexDirection: "column",
+          width: "100%",
+          paddingTop: 10,
+          textAlign: "left",
+          color: '#6c68fb',
+        }}
+      >
+        <Typography variant = "h4">Not sure where to begin? </Typography>
+        <Typography variant = "h4"> Take our placement test to find out!</Typography>
+        </Box>
+      )}
       <Box
         sx={{
           display: "flex",
@@ -176,13 +199,13 @@ function Problems() {
           alignItems: "center",
           flexDirection: "row",
           width: "100%",
-          paddingTop: 10,
+          paddingTop: 6,
           paddingBottom: 4,
         }}
       >
         <Grid container alignItems="center" spacing={2}>
           <Grid item>
-            <Typography variant="h6">
+            <Typography variant="h6" sx={{color: '#6c68fb',}}>
               {" "}
               {completed}/{filteredRows.length} Problems Done (
               {filteredRows.length === 0

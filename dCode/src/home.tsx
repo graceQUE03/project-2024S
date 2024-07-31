@@ -19,7 +19,7 @@ function Home() {
     }, 0);  
   };
 
-  axios.post('/api/add-user');
+  axios.post('http://localhost:3000/api/add-user');
 
   return (
     <div>

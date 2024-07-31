@@ -1,6 +1,6 @@
 // result.tsx
 import React, { useEffect, useState } from "react";
-import { AppBar, Button, Box, Tab, Tabs, Typography, Grid } from "@mui/material";
+import { AppBar, Button, Box, CircularProgress, Tab, Tabs, Typography, Grid } from "@mui/material";
 import { AiOutlineReload } from "react-icons/ai";
 import { useLocation, useNavigate } from "react-router-dom";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -164,7 +164,7 @@ const Result = () => {
   const [showResults, setShowResults] = useState<boolean>(false);
 
   const totalTests = 5;
-
+  
   const navigate = useNavigate();
 
   const handlePlacement = () => {
@@ -395,6 +395,12 @@ const Result = () => {
             Take Placement Test Again
           </Button>
         </Box>
+        {!showResults && (
+                  <Box sx={{ display: 'flex' }}>
+                  <Typography variant = "h4">generating feedbacks ... </Typography>
+                  <CircularProgress />
+                </Box>
+        )}
 
         {showResults && (<Typography style={{ width: 550, textAlign: "left", lineHeight: 2, color: '#6c68fb'}}>
           Based on your test results, we recommend you start practicing

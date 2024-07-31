@@ -80,6 +80,27 @@ app.get("/api/users", (req, res) => {
     });
 });
 
+app.post("/api/users/placement-complete", (req, res) => {
+  const {auth0_user_id} = req.body;
+
+  if (!auth0_user_id) {
+    return res.status(400).send("Missing auth0_user_id");
+  }
+
+  pg("users")
+  .update({
+    placement_test_taken: true
+  })
+  .where("auth0_user_id", auth0_user_id)
+  .then(() => {
+    res.status(200).send("Placement test status updated");
+  })
+  .catch((error) => {
+    console.error("Error updating placement test status");
+    res.status(500).send("Internal Server Error");
+  })
+});
+
 app.post("/api/users/:id/add-saved-attempt", (req, res) => {
   const { id } = req.params;
   const { problem_id, description } = req.body;
@@ -195,6 +216,22 @@ app.get("/profile", requiresAuth(), (req, res) => {
 app.get("/api/user", (req, res) => {
   res.send(req.oidc.user.sub);
 });
+
+app.post("/api/users/placement", (req, res) => {
+  const {auth0_user_id} = req.body;
+
+  if (!auth0_user_id) {
+    return res.status(400).send("Missing auth0_user_id");
+  }
+
+  pg("users")
+    .select("placement_test_taken")
+    .where("auth0_user_id", auth0_user_id)
+    .then((users) => {
+      res.json(users[0]);
+    });
+})
+
 
 app.post("/api/openai-test", async (req, res) => {
   const { prompt } = req.body;
