@@ -13,21 +13,21 @@ CREATE TABLE IF NOT EXISTS problems (
     tests JSONB NOT NULL
 );
 
--- mock problem data for now 
-
+-- must have id = 1
 INSERT INTO problems (name, description, code, difficulty, tests)
-VALUES('Addition', 'Simple addition of two numbers', 
+VALUES('Addition', 'Simple addition of two inputs', 
 'function foo(a, b) {
   return a + b;
 }', 'easy', 
 '{
     "test1": {"description": "adding two positive numbers", "input": [2, 3], "output": 5}, 
-    "test2": {"description": "adding zero and a positive number", "input": [0, 3], "output": 3},
+    "test2": {"description": "adding two strings", "input": ["abc", " def"], "output": "abc def"},
     "test3": {"description": "adding two negative numbers", "input": [-7, -9], "output": -16}, 
     "test4": {"description": "adding a positive and a negative number", "input": [6, -14], "output": -8},
-    "test5": {"description": "adding two decimal number", "input": [4.5, 2.3], "output": 6.8}
+    "test5": {"description": "adding two decimal number", "input": [4.5, 2.4], "output": 6.9}
   }');
 
+-- must have id = 2
 INSERT INTO problems (name, description, code, difficulty, tests)
 VALUES('Factorial', 'Recursive function to calculate factorial', 'function foo(n) {
   return n < 2 ? 1 : n * foo(n - 1);
@@ -40,6 +40,7 @@ VALUES('Factorial', 'Recursive function to calculate factorial', 'function foo(n
     "test5": {"description": "factorial of 10", "input": [10], "output": 3628800}
   }');
 
+-- must have id = 3
   INSERT INTO problems (name, description, code, difficulty, tests)
 VALUES('Sentence and Words', 'Reverse the characters of each word in a given sentence while maintaining the word order', 
 'function foo(sentence) {

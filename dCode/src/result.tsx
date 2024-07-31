@@ -177,7 +177,7 @@ const Result = () => {
   const exception1 =
     "Your description is a javascript code. Please describe the problem in plain English.";
   const exception2 =
-    "Your description is not a valid sentence. Please describe the problem in plain English.";
+    "Your description is an invalid sentence. Please describe the problem in plain English.";
 
   const [value, setValue] = React.useState(0);
 

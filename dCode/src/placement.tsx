@@ -1,6 +1,6 @@
 // placement.tsx
 import { Box, Button, TextField, Typography } from "@mui/material";
-import {useNavigate} from 'react-router-dom'; 
+import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 import axios from "axios";
 import "./App.css";
@@ -78,7 +78,9 @@ const Placement: React.FC = () => {
   React.useEffect(() => {
     const fetchProblems = async (id: number) => {
       try {
-        const fetchedProblems = await axios.get(`http://localhost:3000/api/problems/${id}`);
+        const fetchedProblems = await axios.get(
+          `http://localhost:3000/api/problems/${id}`
+        );
         if (id === 1) {
           setProblemEasy(fetchedProblems.data[0].code);
           setTestsEasy(fetchedProblems.data[0].tests);
@@ -99,11 +101,20 @@ const Placement: React.FC = () => {
     fetchProblems(3);
   }, []);
 
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    navigate('/dcode/result', {state : { promptEasy, promptMedium, promptHard, testsEasy, testsMedium, testsHard}});  
+    navigate("/dcode/result", {
+      state: {
+        promptEasy,
+        promptMedium,
+        promptHard,
+        testsEasy,
+        testsMedium,
+        testsHard,
+      },
+    });
   };
 
   return (
@@ -125,6 +136,7 @@ const Placement: React.FC = () => {
       <form onSubmit = {handleSubmit}>
       {/* Problem 1 */}
       <Box
+       mt={10}
         sx={{
           gap: 2,
           display: "flex",
@@ -145,17 +157,7 @@ const Placement: React.FC = () => {
           <Typography variant="body1">{1}</Typography>
         </Box>
 
-        <Box
-          height={200}
-          width={500}
-          my={4}
-          display="flex"
-          flexDirection="row"
-          justifyContent="center"
-          alignItems="center"
-          p={2}
-          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
-        >
+        <Box width = "100%" component="pre" bgcolor="black" p={4} borderRadius={4}>
           <Box>
               <pre
                 style={{
@@ -172,7 +174,6 @@ const Placement: React.FC = () => {
       <Box
         sx={{
           width : 600,
-          mt: 15,
         }}
       >
         <TextField
@@ -207,17 +208,7 @@ const Placement: React.FC = () => {
           <Typography variant="body1">{2}</Typography>
         </Box>
 
-        <Box
-          height={200}
-          width={500}
-          my={4}
-          display="flex"
-          flexDirection="row"
-          justifyContent="center"
-          alignItems="center"
-          p={2}
-          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
-        >
+        <Box width = "100%" component="pre" bgcolor="black" p={4} borderRadius={4}>
           <Box>
               <pre
                 style={{
@@ -234,7 +225,6 @@ const Placement: React.FC = () => {
       <Box
         sx={{
           width : 600,
-          mt: 15,
         }}
       >
         <TextField
@@ -269,17 +259,9 @@ const Placement: React.FC = () => {
           <Typography variant="body1">{3}</Typography>
         </Box>
 
-        <Box
-          height={200}
-          width={500}
-          my={4}
-          display="flex"
-          flexDirection="row"
-          justifyContent="center"
-          alignItems="center"
-          p={2}
-          sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
-        >
+
+        <Box width={480} component="pre" bgcolor="black" p={4} borderRadius={4}>
+   
           <Box>
               <pre
                 style={{
@@ -296,7 +278,6 @@ const Placement: React.FC = () => {
       <Box
         sx={{
           width : 600,
-          mt: 15,
         }}
       >
         <TextField
@@ -320,6 +301,6 @@ const Placement: React.FC = () => {
       </form>
     </div>
   );
-}
+};
 
 export default Placement;

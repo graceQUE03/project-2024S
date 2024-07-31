@@ -155,8 +155,8 @@ const callOpenAI = async (prompt) => {
           {
             role: "system",
             content: `Act like a javascript code generator. 
-              You will be provided with plain english sentence, 
-              and your task is to generate a piece of javascript code with function name foo.
+              You will be provided with a plain English sentence. 
+              Your task is to generate a piece of JavaScript code with a function named foo.
               Check the following exceptions: 
               If the user input is a javascript code, then return "exception 1".
               Example: Me: "function foo(a, b) { return a + b; }", You: "exception 1".
@@ -197,7 +197,7 @@ app.get("/api/user", (req, res) => {
 });
 
 app.post("/api/openai-test", async (req, res) => {
-  const { prompt} = req.body;
+  const { prompt } = req.body;
   try {
     // call OpenAI and get generated code
     const generatedCode = await callOpenAI(prompt);
@@ -223,13 +223,13 @@ app.post("/api/test-generated-code", async (req, res) => {
     const appendHelper = `return (${generatedCode})`;
     const foo = new Function(appendHelper)();
 
-    // (3) run the generated function with stored input
+    // (4) run the generated function with stored input
     const outputs = [];
-    const output1 = foo(...fetchedTests.test1.input);
-    const output2 = foo(...fetchedTests.test2.input);
-    const output3 = foo(...fetchedTests.test3.input);
-    const output4 = foo(...fetchedTests.test4.input);
-    const output5 = foo(...fetchedTests.test5.input);
+    const output1 = foo.apply(null, fetchedTests.test1.input);
+    const output2 = foo.apply(null, fetchedTests.test2.input);
+    const output3 = foo.apply(null, fetchedTests.test3.input);
+    const output4 = foo.apply(null, fetchedTests.test4.input);
+    const output5 = foo.apply(null, fetchedTests.test5.input);
     
     outputs.push(output1, output2, output3, output4, output5);
 

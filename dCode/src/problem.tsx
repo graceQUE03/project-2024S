@@ -36,7 +36,7 @@ const Problem: React.FC = () => {
   const exception1 =
     "Your description is a javascript code. Please describe the problem in plain English.";
   const exception2 =
-    "Your description is not a valid sentence. Please describe the problem in plain English.";
+    "Your description is an invalid sentence. Please describe the problem in plain English.";
 
   useEffect(() => {
     if (!id) {
@@ -66,7 +66,7 @@ const Problem: React.FC = () => {
       const response = await axios.post(
         "http://localhost:3000/api/openai-test",
         {
-          prompt
+          prompt,
         }
       );
 
@@ -147,7 +147,7 @@ const Problem: React.FC = () => {
       const attemptsResponse = await axios.get(
         `http://localhost:3000/api/user-problem-attempts/${auth0_user_id}/${id}`
       );
-      setAttempts(attemptsResponse.data.reverse()); 
+      setAttempts(attemptsResponse.data.reverse());
       setShowHistory(true);
     } catch (error) {
       console.error("Error fetching problem attempts:", error);
@@ -183,9 +183,9 @@ const Problem: React.FC = () => {
     } else {
       actualOutput = actualOutputs[testIndex];
     }
-    const passed = actualOutput === expectedOutput ? "Yes" : "No";
+    const passed = actualOutput === expectedOutput ? "Pass" : "Fail";
 
-    const text = `Test Case ${testCase} \n  Description: ${description} \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Passed: ${passed} \n \n`;
+    const text = `Test Case ${testCase} \n  Description: ${description} \n Inputs: [${problemTests[testNumber].input}] \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Result: ${passed} \n \n`;
     return (
       <Typography variant="h6" style={{ whiteSpace: "pre-line" }}>
         {text}
@@ -210,13 +210,23 @@ const Problem: React.FC = () => {
     );
 
     return (
-      <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
-        {testResult(1)}
-        {testResult(2)}
-        {testResult(3)}
-        {testResult(4)}
-        {testResult(5)}
-      </Box>
+      <Grid item>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(1)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(2)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(3)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(4)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(5)}
+        </Box>
+      </Grid>
     );
   };
 
@@ -255,7 +265,7 @@ const Problem: React.FC = () => {
           margin="normal"
           InputProps={{
             style: {
-              color: 'black',  
+              color: "black",
             },
           }}
         />
@@ -291,7 +301,12 @@ const Problem: React.FC = () => {
       </form>
       {showResults && (
         <>
-          <Box mt={4} p={2} bgcolor={score === 100 ? "green" : "red"} borderRadius={2}>
+          <Box
+            mt={4}
+            p={2}
+            bgcolor={score === 100 ? "green" : "red"}
+            borderRadius={2}
+          >
             <Typography variant="h6" style={{ color: "white" }}>
               {score === 100 ? "All Tests Passed" : "Test Cases Failed"}
             </Typography>
@@ -309,9 +324,9 @@ const Problem: React.FC = () => {
               mt: 2,
               height: 13,
               borderRadius: 5,
-              '& .MuiLinearProgress-bar': {
-                bgcolor: 'green'
-              }
+              "& .MuiLinearProgress-bar": {
+                bgcolor: "green",
+              },
             }}
           />
           <Typography variant="h4" mt={4}>
@@ -323,9 +338,7 @@ const Problem: React.FC = () => {
           <Typography variant="h4" mt={4}>
             Test Case Results
           </Typography>
-          <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
-            {displayResult()}
-          </Box>
+          {displayResult()}
         </>
       )}
       <Dialog
