@@ -1,6 +1,6 @@
 // result.tsx
 import React, { useEffect, useState } from "react";
-import { AppBar, Button, Box, Tab, Tabs, Typography } from "@mui/material";
+import { AppBar, Button, Box, Tab, Tabs, Typography, Grid } from "@mui/material";
 import { AiOutlineReload } from "react-icons/ai";
 import { useLocation, useNavigate } from "react-router-dom";
 import LinearProgress from "@mui/material/LinearProgress";
@@ -68,9 +68,11 @@ function displayTabPanel(
   totalTests: number
 ) {
   const passTests = passArray[index].filter(Boolean).length;
-  var passMessage =
+  const passMessage =
     passTests === totalTests ? "ALL TEST CASES PASSED" : "TEST CASES FAILED";
-  var color = passTests === totalTests ? "green" : "red";
+  const color = passTests === totalTests ? "green" : "red";
+  const w = passTests === totalTests ? 250 : 220;
+
 
   return (
     <>
@@ -86,7 +88,7 @@ function displayTabPanel(
         >
           <Box
             sx={{
-              width: 220,
+              width: w,
               height: 40,
               bgcolor: color,
               color: "white",
@@ -99,7 +101,7 @@ function displayTabPanel(
             </Typography>
           </Box>
 
-          <Typography variant="h5">AI-Generated Code</Typography>
+          <Typography variant="h5" style={{ color: '#6c68fb' }}>AI-Generated Code</Typography>
 
           <Box
             width="100%"
@@ -121,7 +123,7 @@ function displayTabPanel(
             {problem}
           </Box>
 
-          <Typography variant="h6">
+          <Typography variant="h6" style={{ color: '#6c68fb' }}>
             Test Cases Passed {passTests}/{totalTests}{" "}
           </Typography>
         </Box>
@@ -196,8 +198,6 @@ const Result = () => {
       for (let i = 1; i <= 5; i++) {
         const expectedOutput = tests[`test${i}`].output;
         const actualOutput = obj.result[`actualOutput${i}`];
-        console.log("this is the actualoutput: " + actualOutput);
-        console.log("this is the expectedOutput: " + expectedOutput);
         if (
           typeof expectedOutput === "number" &&
           !Number.isInteger(expectedOutput)
@@ -216,6 +216,7 @@ const Result = () => {
 
     // (1) fetch all generated codes
     const fetchGeneratedCode = async (code: string) => {
+      console.log(resultsEasy, resultsMedium, resultsHard);
       try {
         if (code === "easy") {
           const responseEasy = await axios.post(
@@ -232,16 +233,13 @@ const Result = () => {
           } else {
             let trimmed = generated.split("```javascript");
             trimmed = trimmed[1].split("```");
-            console.log(trimmed[0]);
+
             setGeneratedCodeEasy(trimmed[0]);
 
             const response = await axios.post(
               "http://localhost:3000/api/test-generated-code",
               { generatedCode: trimmed[0], id: 1 }
             );
-
-            console.log("easy: ")
-            console.log(JSON.stringify(resultsEasy, null, 2));
 
             setResultsEasy(response.data);
 
@@ -263,15 +261,13 @@ const Result = () => {
           } else {
             let trimmed = generated.split("```javascript");
             trimmed = trimmed[1].split("```");
-            console.log(trimmed[0]);
+
             setGeneratedCodeMedium(trimmed[0]);
 
             const response = await axios.post(
               "http://localhost:3000/api/test-generated-code",
               { generatedCode: trimmed[0], id: 2 }
             );
-            console.log("medium: ")
-            console.log(JSON.stringify(resultsMedium, null, 2));
 
             setResultsMedium(response.data);
             evalPass(testsMedium, response.data, 1);
@@ -285,38 +281,33 @@ const Result = () => {
           const generated = responseHard.data.generatedCode;
           if (generated === "exception 1") {
             setGeneratedCodeHard(exception1);
-            // !!!
+
             setShowResults(true);
             return;
           } else if (generated === "exception 2") {
             setGeneratedCodeHard(exception2);
-            // !!!
+
             setShowResults(true);
             return;
           } else {
             let trimmed = generated.split("```javascript");
             trimmed = trimmed[1].split("```");
-            console.log(trimmed[0]);
+
             setGeneratedCodeHard(trimmed[0]);
 
             const response = await axios.post(
               "http://localhost:3000/api/test-generated-code",
               { generatedCode: trimmed[0], id: 3 }
             );
-
-            console.log("hard: ")
-            console.log(JSON.stringify(resultsHard, null, 2));
-
             setResultsHard(response.data);
-            console.log(resultsEasy, resultsMedium, resultsHard);
 
             evalPass(testsHard, response.data, 2);
-            // !!!
+
             setShowResults(true);
           }
         }
       } catch (error: any) {
-        console.log("Error setting generated code : " + error.message);
+        console.error("Error setting generated code : " + error.message);
       }
     };
 
@@ -330,6 +321,44 @@ const Result = () => {
     var target = event.target as HTMLInputElement;
     setValue(newValue);
   };
+
+  const testResult = (index : number, testCase: number, tests : any) => {
+    const testNumber = `test${testCase}`;
+    const description = tests[testNumber].description;
+    const expectedOutput = tests[testNumber].output;
+    const actualOutput = actualOutputsArray[index][testCase - 1];
+    const passed = passArray[index][testCase - 1] ? "Pass" : "Fail";
+
+    const text = `Test Case ${testCase} \n  Description: ${description} \n Inputs: [${tests[testNumber].input}] \n Expected Output: ${expectedOutput} \n ActualOutput: ${actualOutput} \n Result: ${passed} \n \n`;
+    return (
+      <Typography variant="h6" style={{ whiteSpace: "pre-line" }}>
+        {text}
+      </Typography>
+    );
+  };
+
+  const displayResult = (index: number, tests : any) => {
+    return (
+      <Grid item>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(index, 1, tests)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(index, 2, tests)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(index, 3, tests)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(index, 4, tests)}
+        </Box>
+        <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
+          {testResult(index, 5, tests)}
+        </Box>
+      </Grid>
+    );
+  };
+
 
   // displaying first problem without fetching from the database
   return (
@@ -367,7 +396,7 @@ const Result = () => {
           </Button>
         </Box>
 
-        {showResults && (<Typography style={{ width: 550, textAlign: "left", lineHeight: 2 }}>
+        {showResults && (<Typography style={{ width: 550, textAlign: "left", lineHeight: 2, color: '#6c68fb'}}>
           Based on your test results, we recommend you start practicing
           questions with the tag:
           <Box
@@ -442,7 +471,10 @@ const Result = () => {
           View Test Cases
         </Button>
       </form>
-      {showTestCases && <Typography> this is the results</Typography>}
+      {showTestCases && 
+      ((value === 0 && displayResult(0, testsEasy)) ||
+      (value === 1 && displayResult(1, testsMedium)) ||
+      (value === 2 && displayResult(2, testsHard)))}
     </div>
   );
 };

@@ -243,7 +243,7 @@ const Problem: React.FC = () => {
             color: "white",
             boxShadow: 3,
             fontFamily: "monospace",
-            fontSize: "1rem",
+            fontSize: "18px",
             whiteSpace: "pre-wrap",
             wordWrap: "break-word",
           }}
@@ -251,7 +251,7 @@ const Problem: React.FC = () => {
           {problemCode}
         </Box>
       )}
-      <Typography variant="h5" mt={4}>
+      <Typography variant="h5" mt={4} style={{ color: '#6c68fb' }}>
         Describe the code above in plain English.
       </Typography>
       <form onSubmit={handleSubmit}>
@@ -329,13 +329,13 @@ const Problem: React.FC = () => {
               },
             }}
           />
-          <Typography variant="h4" mt={4}>
+          <Typography variant="h4" mt={4} style={{ color: '#6c68fb' }} >
             Generated JavaScript Code
           </Typography>
           <Box component="pre" bgcolor="black" p={4} mt={4} borderRadius={4}>
             {generatedCode}
           </Box>
-          <Typography variant="h4" mt={4}>
+          <Typography variant="h4" mt={4} style={{ color: '#6c68fb' }}>
             Test Case Results
           </Typography>
           {displayResult()}
