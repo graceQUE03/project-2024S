@@ -114,7 +114,7 @@ function Problems() {
       try {
         // Fetch user ID
         const userResponse = await axios.get("http://localhost:3000/api/user");
-        const user_id = userResponse.data;
+        const user_id = userResponse.data.id;
   
         if (!user_id) {
           console.error("User ID is missing");

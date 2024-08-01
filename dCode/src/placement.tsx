@@ -5,63 +5,6 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./App.css";
 
-// display problem number, problem statement and type box for description
-// function displayProblemBox(number: number, problem: string) {
-//   return (
-//     <>
-//     <Box
-//         sx={{
-//           gap: 2,
-//           display: "flex",
-//           alignItems: "center",
-//           height: "35vh",
-//           flexDirection: "row",
-//         }}
-//       >
-//         <Box
-//           sx={{
-//             width: 25,
-//             height: 25,
-//             bgcolor: "primary.main",
-//             color: "white",
-//             borderRadius: "4px",
-//           }}
-//         >
-//           <Typography variant="body1">{number}</Typography>
-//         </Box>
-
-//         <Box
-//           height={200}
-//           width={500}
-//           my={4}
-//           display="flex"
-//           flexDirection="row"
-//           justifyContent="center"
-//           p={2}
-//           sx={{ mt: 30, textAlign: "left", border: "4px solid #646cffaa" }}
-//         >
-//           <pre>{problem}</pre>
-//         </Box>
-//       </Box>
-//       <Box
-//         sx={{
-//           width : 600,
-//           mt: 15,
-//         }}
-//       >
-//         <TextField
-//           fullWidth
-//           id="description"
-//           label="Type your function description in plain English below"
-//           multiline
-//           minRows={4}
-//           maxRows={10}
-//         />
-//       </Box>
-//     </>
-//   );
-// };
-
 const Placement: React.FC = () => {
   const [problemEasy, setProblemEasy] = useState<string>("");
   const [problemMedium, setProblemMedium] = useState<string>("");
@@ -108,7 +51,7 @@ const Placement: React.FC = () => {
 
     try {
       const userResponse = await axios.get("http://localhost:3000/api/user");
-      const auth0_user_id = userResponse.data;
+      const auth0_user_id = userResponse.data.id;
 
       if (!auth0_user_id) {
         alert("User ID is missing.");
