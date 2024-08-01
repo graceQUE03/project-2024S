@@ -80,6 +80,14 @@ app.get("/api/users", (req, res) => {
     });
 });
 
+app.get('/profile', requiresAuth(), (req, res) => {
+  res.send(JSON.stringify(req.oidc.user, null, 2));
+});
+
+app.get('/api/user', (req, res) => {
+  res.send({id: req.oidc.user.sub});
+});
+
 app.post("/api/users/placement-complete", (req, res) => {
   const {auth0_user_id} = req.body;
 
@@ -101,18 +109,12 @@ app.post("/api/users/placement-complete", (req, res) => {
   })
 });
 
-app.post("/api/users/:id/add-saved-attempt", (req, res) => {
+
+app.post('/api/users/:id/add-saved-attempt', (req, res) => {
   const { id } = req.params;
   const { problem_id, description } = req.body;
-  pg("users")
-    .update({
-      saved_attempts: knex.raw("jsonb_set(??, ?, ?::jsonb)", [
-        "saved_attempts",
-        "$.problem_id",
-        JSON.stringify(description),
-      ]),
-    })
-    .where("id", id)
+  pg('users')
+    .update({ saved_attempts: pg.raw('jsonb_set(??, ?, ?::jsonb)', ['saved_attempts', "{" + problem_id + "}", JSON.stringify(description)]) }).where('auth0_user_id', id)
     .then(() => {
       res.status(201).send("Saved attempt added");
     })
@@ -149,6 +151,7 @@ app.get("/api/users/:id/saved-attempts/:problem_id", (req, res) => {
 
 app.post("/api/add-user", requiresAuth(), (req, res) => {
   const auth0_user_id = req.oidc.user.sub;
+
   if (!auth0_user_id) {
     return res.status(400).send("Missing auth0_user_id");
   }
