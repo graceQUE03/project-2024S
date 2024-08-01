@@ -204,7 +204,7 @@ function Landing() {
           ))}
         </Grid>
       </Container>
-      <Box component="footer" sx={{ py: 2, backgroundColor: 'primary.main', color: 'white', position: 'absolute', left: 0, width: '100%' }}>
+      <Box component="footer" sx={{ py: 3, backgroundColor: 'primary.main', color: 'white', position: 'absolute', left: 0, width: '100%' }}>
         <Container maxWidth="lg">
           <Typography variant="body2" color="white" align="center">
             {'Copyright © '}

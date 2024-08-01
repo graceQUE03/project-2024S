@@ -26,5 +26,21 @@ export const themeOptions: ThemeOptions = {
         color: 'inherit',
       },
     },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          color: '#fff', 
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '& input': {
+            color: '#fff',
+          },
+        },
+      },
+    },
   },
 };
