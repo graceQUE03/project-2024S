@@ -1,8 +1,5 @@
  # dCode 
  
-# Link to Test File 
-https://github.students.cs.ubc.ca/CPSC310-2024S/Project-Groups-04-Lab-C/blob/main/dCode/tests/tests.ts
-
 # Docker Setup
 
 ### Building and running your application
